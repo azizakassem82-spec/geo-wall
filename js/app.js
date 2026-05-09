@@ -75,16 +75,8 @@ function initDashboard() {
     initWellsManager();
     initLibrary();
 
-    // 2. Hybrid Data Loading Strategy
-    // Tactic: Display Mock Data IMMEDIATELY for instant UI (No empty screen)
+    // Prototype mode — 100% mock data, no backend
     loadLocalData();
-
-    // Then try to fetch live data quietly in the background
-    // If successful, it will update the UI. If not, the user already sees the mock data.
-    setTimeout(() => {
-        fetchWellsData();
-        fetchLayersData();
-    }, 1000);
 }
 
 function loadLocalData() {
@@ -115,84 +107,18 @@ function loadLocalData() {
     }
 }
 
-async function fetchWellsData() {
-    try {
-        console.log("Attempting to connect to PostGIS Backend...");
-        const response = await fetch('http://localhost:3000/api/wells');
-
-        if (!response.ok) throw new Error('Network response was not ok');
-
-        const geojson = await response.json();
-        
-        if (geojson.features && geojson.features.length > 0) {
-            console.log(`Loaded ${geojson.features.length} live wells from Backend.`);
-            const liveWells = geojson.features.map(f => ({
-                id: f.properties.id,
-                name: f.properties.name,
-                lat: f.geometry.coordinates[1],
-                lng: f.geometry.coordinates[0],
-                status: f.properties.status || 'Active',
-                type: f.properties.type,
-                depth: f.properties.depth,
-                hydraulics: {
-                    staticLevel: f.properties.static_lvl,
-                    dynamicLevel: f.properties.dynamic_lvl,
-                    discharge: f.properties.discharge,
-                    piezometricLevel: f.properties.piezometric
-                },
-                physical: {
-                    temp: f.properties.temp,
-                    ph: f.properties.ph,
-                    tds: f.properties.tds,
-                    conductivity: f.properties.conduct
-                },
-                chemical: {
-                    cations: { Na: f.properties.na, K: f.properties.k, Ca: f.properties.ca, Mg: f.properties.mg },
-                    anions: { Cl: f.properties.cl, SO4: f.properties.so4, HCO3: f.properties.hco3, NO3: f.properties.no3 }
-                },
-                state: f.properties.state || "Batna",
-                district: f.properties.district || "Batna",
-                location: f.properties.location || `Lat: ${f.geometry.coordinates[1].toFixed(4)}, Lng: ${f.geometry.coordinates[0].toFixed(4)}`
-            }));
-
-            mockData.rigs = liveWells;
-            loadLocalData(); // Refresh everything with new data
-        }
-    } catch (error) {
-        console.warn("PostGIS Backend offline. Staying with local mock data.");
-    }
-}
+// Prototype stubs — backend disabled for static deployment
+async function fetchWellsData() { /* mock-only */ }
 async function fetchLayersData() {
-     try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-        const response = await fetch('http://localhost:3000/api/layers', { signal: controller.signal });
-        clearTimeout(timeoutId);
-
-        if (!response.ok) return;
-
-        const layers = await response.json();
-        const listContainer = document.getElementById('layerList');
-        const controlPanel = document.getElementById('layerControl');
-
-        if (layers.length > 0 && controlPanel) {
-            controlPanel.style.display = 'block';
-            listContainer.innerHTML = '';
-        }
-
-        for (const layer of layers) {
-             const res = await fetch(`http://localhost:3000/api/layer/${layer.name}`);
-             const geojson = await res.json();
-             if (window.mainMap) window.mainMap.addGenericLayer(geojson, layer.name);
-        }
-
-    } catch (e) {
-        // Fallback to mock layers if not already loaded
-        console.warn("GIS Backend offline. Using internal mock layers.");
-        if (typeof loadMockGISLayers === 'function') loadMockGISLayers();
-    }
+    if (typeof loadMockGISLayers === 'function') loadMockGISLayers();
 }
+
+// No backend in prototype — both local and Vercel use mock data
+async function fetchWellsData() { /* no-op: prototype uses mockData.js */ }
+async function fetchLayersData() {
+    if (typeof loadMockGISLayers === 'function') loadMockGISLayers();
+}
+
 
 window.toggleLayer = function (layerName, isVisible) {
     if (window.mainMap && window.mainMap.toggleGenericLayer) {
@@ -208,18 +134,12 @@ window.initLibrary = async function() {
 }
 
 window.fetchLibrary = async function() {
-    try {
-        const res = await fetch('http://localhost:3000/api/library/list');
-        if (!res.ok) throw new Error("Server response not OK");
-        currentLibrary = await res.json();
-    } catch (e) {
-        console.warn("Real library sync failed, checking localStorage or mock:", e);
-        const saved = localStorage.getItem('geo_library');
-        if (saved) {
-            currentLibrary = JSON.parse(saved);
-        } else if (window.mockData) {
-            currentLibrary = window.mockData.documents;
-        }
+    // Prototype: localStorage only, no backend
+    const saved = localStorage.getItem('geo_library');
+    if (saved) {
+        try { currentLibrary = JSON.parse(saved); } catch(e) { currentLibrary = []; }
+    } else if (window.mockData) {
+        currentLibrary = [...window.mockData.documents];
     }
 }
 
@@ -295,23 +215,9 @@ window.handleLibraryUpload = async function() {
             description: description
         };
 
-        try {
-            // Attempt real backend first
-            const res = await fetch('http://localhost:3000/api/library/upload', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(docData)
-            });
-            if (res.ok) {
-                await fetchLibrary();
-            } else {
-                throw new Error("Backend offline");
-            }
-        } catch (err) {
-            console.warn("Saving locally (Offline Mode)");
-            currentLibrary.unshift(docData);
-            saveLibraryToLocal();
-        }
+        // Prototype: save to localStorage only
+        currentLibrary.unshift(docData);
+        saveLibraryToLocal();
 
         if (typeof addAiLog === 'function') addAiLog(`[LIBRARY] ${title} saved.`, "success");
         renderLibrary(typeof activeLibraryCategory !== 'undefined' ? activeLibraryCategory : 'all');
@@ -329,10 +235,7 @@ window.downloadFile = function(id) {
     const doc = currentLibrary.find(d => String(d.id) === String(id));
     if (!doc) return;
 
-    if (doc.url && doc.url !== '#') {
-        window.open(`http://localhost:3000${doc.url}`, '_blank');
-        return;
-    }
+    // No backend URL — fall through to local file data
 
     // Demo / Mock Fallback: If no file data, generate a realistic demo document
     let fileContent = doc.file;
@@ -393,15 +296,8 @@ In a production environment, this would contain the actual ${doc.type.toUpperCas
 window.handleLibraryDelete = async function(id) {
     if (!confirm("Delete this document?")) return;
     
-    try {
-        const res = await fetch(`http://localhost:3000/api/library/delete/${id}`, { method: 'DELETE' });
-        if (res.ok) {
-            await fetchLibrary();
-        } else { throw new Error(); }
-    } catch (err) {
-        currentLibrary = currentLibrary.filter(d => String(d.id) !== String(id));
-        saveLibraryToLocal();
-    }
+    currentLibrary = currentLibrary.filter(d => String(d.id) !== String(id));
+    saveLibraryToLocal();
     renderLibrary(activeLibraryCategory);
 }
 
@@ -412,20 +308,9 @@ window.handleLibraryEdit = async function(id) {
     const newName = prompt("New name:", doc.name);
     if (!newName) return;
 
-    try {
-        const res = await fetch('http://localhost:3000/api/library/edit', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, name: newName })
-        });
-        if (res.ok) {
-            await fetchLibrary();
-        } else { throw new Error(); }
-    } catch (err) {
-        const docObj = currentLibrary.find(d => String(d.id) === String(id));
-        if (docObj) docObj.name = newName;
-        saveLibraryToLocal();
-    }
+    const docObj = currentLibrary.find(d => String(d.id) === String(id));
+    if (docObj) docObj.name = newName;
+    saveLibraryToLocal();
     renderLibrary(activeLibraryCategory);
 }
 
