@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test QGIS Bridge</title>
+</head>
+
+<body>
+    <h1>Testing QGIS Bridge</h1>
+    <div id="status">Loading...</div>
+
+    <script>
+        // Test if file exists and can be loaded
+        fetch('data/geowell_live.json')
+            .then(response => {
+                document.getElementById('status').innerHTML =
+                    `<p>✅ File Found! Status: ${response.status}</p>`;
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('status').innerHTML +=
+                    `<p>✅ Data Loaded! Features: ${data.features.length}</p>` +
+                    `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            })
+            .catch(error => {
+                document.getElementById('status').innerHTML =
+                    `<p>❌ Error: ${error.message}</p>`;
+            });
+    </script>
+</body>
+
+</html>
