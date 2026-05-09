@@ -1009,25 +1009,142 @@
             <!-- VIEW: ASSETS -->
             <div id="view-assets" class="view-section">
                 <div class="dashboard-grid">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fa-solid fa-layer-group"></i> <span data-i18n="asset_management">Asset
-                                    Management</span></h3>
+                    <div class="view-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div>
+                            <h2 style="font-family: 'Orbitron', sans-serif; font-size: 1.4rem; color: #fff; margin: 0;">Asset Management</h2>
+                            <p style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Scientific & Logistics Inventory</p>
                         </div>
-                        <div class="status-list">
-                            <div class="status-item">
-                                <div class="rig-info">
-                                    <span class="rig-name">Drill Bit Type-X</span>
-                                    <span class="rig-location">Warehouse A</span>
-                                </div>
-                                <div class="status-badge operational">In Stock</div>
+                        <div class="status-pill pulse-success" style="background: rgba(0, 255, 157, 0.05); border: 1px solid rgba(0, 255, 157, 0.2); padding: 4px 12px; border-radius: 20px; color: var(--accent-success); font-size: 0.7rem; font-weight: 600;">
+                            <i class="fa-solid fa-rotate"></i> INVENTORY SYNC ACTIVE
+                        </div>
+                    </div>
+
+                    <div class="assets-grid">
+                        <!-- Asset Card 1 -->
+                        <div class="asset-card" style="border-left: 3px solid var(--accent-primary);">
+                            <div class="asset-status-row">
+                                <span class="asset-tag in-stock">IN STOCK</span>
+                                <div class="asset-icon-box"><i class="fa-solid fa-microchip"></i></div>
                             </div>
-                            <div class="status-item">
-                                <div class="rig-info">
-                                    <span class="rig-name">Pump Assembly V2</span>
-                                    <span class="rig-location">Rig R-102</span>
+                            <div class="asset-main">
+                                <h3>GPS RTK Rover (Trimble R12)</h3>
+                                <p><i class="fa-solid fa-warehouse"></i> Warehouse A - Sector 01</p>
+                                <div class="asset-meta">
+                                    <span class="meta-tag"><i class="fa-solid fa-battery-three-quarters"></i> 4/5 Batt</span>
+                                    <span class="meta-tag"><i class="fa-solid fa-clock"></i> 2 Days</span>
                                 </div>
-                                <div class="status-badge maintenance">Deployed</div>
+                                <div class="asset-pills">
+                                    <span class="pill danger"><i class="fa-solid fa-circle-exclamation"></i> HIGH DATA PRIORITY</span>
+                                    <span class="pill info"><i class="fa-solid fa-microchip"></i> OPTIMIZED POWER</span>
+                                    <span class="pill success"><i class="fa-solid fa-check-double"></i> PREMIUM PRECISION</span>
+                                </div>
+                                <div class="asset-power-container">
+                                    <div class="power-label"><span>POWER</span><span>82%</span></div>
+                                    <div class="power-bar"><div class="power-fill" style="width: 82%;"></div></div>
+                                </div>
+                            </div>
+                            <div class="asset-footer">
+                                <div class="asset-actions-mini">
+                                    <button class="mini-btn"><i class="fa-solid fa-map-location-dot"></i></button>
+                                    <button class="mini-btn"><i class="fa-solid fa-history"></i></button>
+                                    <button class="mini-btn"><i class="fa-solid fa-wrench"></i></button>
+                                    <button class="mini-btn"><i class="fa-solid fa-share-nodes"></i></button>
+                                </div>
+                                <button class="book-btn">BOOK NOW</button>
+                            </div>
+                        </div>
+
+                        <!-- Asset Card 2 -->
+                        <div class="asset-card" style="border-left: 3px solid var(--accent-warning);">
+                            <div class="asset-status-row">
+                                <span class="asset-tag deployed">DEPLOYED</span>
+                                <div class="asset-icon-box"><i class="fa-solid fa-satellite-dish"></i></div>
+                            </div>
+                            <div class="asset-main">
+                                <h3>Mala GPR System (250MHz)</h3>
+                                <p><i class="fa-solid fa-location-dot"></i> Batna Site - Guest Sub-Chief</p>
+                                <div class="asset-meta">
+                                    <span class="meta-tag"><i class="fa-solid fa-battery-half"></i> 2/5 Batt</span>
+                                    <span class="meta-tag"><i class="fa-solid fa-clock"></i> 14 Days</span>
+                                </div>
+                                <div class="asset-power-container">
+                                    <div class="power-label"><span>POWER</span><span>45%</span></div>
+                                    <div class="power-bar"><div class="power-fill warning" style="width: 45%;"></div></div>
+                                </div>
+                            </div>
+                            <div class="asset-footer">
+                                <div class="asset-actions-mini">
+                                    <button class="mini-btn"><i class="fa-solid fa-map-location-dot"></i></button>
+                                    <button class="mini-btn"><i class="fa-solid fa-history"></i></button>
+                                    <button class="mini-btn"><i class="fa-solid fa-wrench"></i></button>
+                                    <button class="mini-btn"><i class="fa-solid fa-share-nodes"></i></button>
+                                </div>
+                                <button class="book-btn">BOOK NOW</button>
+                            </div>
+                        </div>
+
+                        <!-- Asset Card 3 -->
+                        <div class="asset-card" style="border-left: 3px solid var(--accent-danger);">
+                            <div class="asset-status-row">
+                                <span class="asset-tag maintenance">MAINTENANCE</span>
+                                <div class="asset-icon-box"><i class="fa-solid fa-magnet"></i></div>
+                            </div>
+                            <div class="asset-main">
+                                <h3>Geometrics G-858 Magnetometer</h3>
+                                <p><i class="fa-solid fa-flask"></i> Algiers Central Lab</p>
+                                <div class="asset-meta">
+                                    <span class="meta-tag"><i class="fa-solid fa-screwdriver-wrench"></i> CALIB REQUIRED</span>
+                                </div>
+                                <div class="asset-pills">
+                                    <span class="pill danger"><i class="fa-solid fa-triangle-exclamation"></i> MAINTENANCE PRIORITY</span>
+                                    <span class="pill info"><i class="fa-solid fa-bolt"></i> POWER SYSTEM</span>
+                                </div>
+                                <div class="asset-power-container">
+                                    <div class="power-label"><span>POWER</span><span>12%</span></div>
+                                    <div class="power-bar"><div class="power-fill danger" style="width: 12%;"></div></div>
+                                </div>
+                            </div>
+                            <div class="asset-footer">
+                                <div class="asset-actions-mini">
+                                    <button class="mini-btn"><i class="fa-solid fa-map-location-dot"></i></button>
+                                    <button class="mini-btn"><i class="fa-solid fa-history"></i></button>
+                                    <button class="mini-btn"><i class="fa-solid fa-wrench"></i></button>
+                                    <button class="mini-btn"><i class="fa-solid fa-share-nodes"></i></button>
+                                </div>
+                                <button class="book-btn">BOOK NOW</button>
+                            </div>
+                        </div>
+
+                        <!-- Asset Card 4 -->
+                        <div class="asset-card" style="border-left: 3px solid var(--accent-success);">
+                            <div class="asset-status-row">
+                                <span class="asset-tag operational">OPERATIONAL</span>
+                                <div class="asset-icon-box"><i class="fa-solid fa-plane-up"></i></div>
+                            </div>
+                            <div class="asset-main">
+                                <h3>Survey Drone SAR (M300)</h3>
+                                <p><i class="fa-solid fa-mountain-sun"></i> M'Sila Basin Sector 04</p>
+                                <div class="asset-meta">
+                                    <span class="meta-tag"><i class="fa-solid fa-signal"></i> SAT Link Med</span>
+                                </div>
+                                <div class="asset-pills">
+                                    <span class="pill danger"><i class="fa-solid fa-triangle-exclamation"></i> MAINTENANCE PRIORITY</span>
+                                    <span class="pill info"><i class="fa-solid fa-microchip"></i> OPTIMIZED POWER</span>
+                                    <span class="pill success"><i class="fa-solid fa-check-double"></i> PREMIUM PRECISION</span>
+                                </div>
+                                <div class="asset-power-container">
+                                    <div class="power-label"><span>POWER</span><span>95%</span></div>
+                                    <div class="power-bar"><div class="power-fill success" style="width: 95%;"></div></div>
+                                </div>
+                            </div>
+                            <div class="asset-footer">
+                                <div class="asset-actions-mini">
+                                    <button class="mini-btn"><i class="fa-solid fa-map-location-dot"></i></button>
+                                    <button class="mini-btn"><i class="fa-solid fa-history"></i></button>
+                                    <button class="mini-btn"><i class="fa-solid fa-wrench"></i></button>
+                                    <button class="mini-btn"><i class="fa-solid fa-share-nodes"></i></button>
+                                </div>
+                                <button class="book-btn">BOOK NOW</button>
                             </div>
                         </div>
                     </div>
@@ -1084,22 +1201,191 @@
 
             <!-- VIEW: COMMUNITY -->
             <div id="view-community" class="view-section">
-                <div class="dashboard-grid">
-                    <div class="card"
-                        style="height: 100%; min-height: 500px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1.5rem;">
-                        <div
-                            style="width: 80px; height: 80px; background: rgba(0, 212, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="fa-solid fa-users" style="font-size: 2.5rem; color: var(--accent-primary);"></i>
+                <div class="dashboard-grid community-view">
+                    <!-- Top Navigation / Language -->
+                    <div class="community-header">
+                        <div class="comm-title">
+                            <i class="fa-solid fa-users-viewfinder"></i>
+                            <span>COMMUNITY HUB</span>
                         </div>
-                        <h2>Community Hub</h2>
-                        <p style="color: var(--text-muted); max-width: 400px; text-align: center;">
-                            Connect with other geologists and engineers. Access shared resources, forums, and event
-                            calendars.
-                        </p>
-                        <div style="display: flex; gap: 1rem;">
-                            <button class="action-btn"><i class="fa-solid fa-comments"></i> Forum</button>
-                            <button class="action-btn"><i class="fa-solid fa-calendar-days"></i> Events</button>
+                        <div class="comm-langs">
+                            <button class="lang-pill">FR</button>
+                            <button class="lang-pill">FR</button>
+                            <button class="lang-pill active">EN</button>
                         </div>
+                    </div>
+
+                    <!-- Connect Section -->
+                    <div class="connect-experts-hero">
+                        <div class="hero-icon">
+                            <i class="fa-solid fa-people-group"></i>
+                        </div>
+                        <h1>Connect with Experts</h1>
+                        <p>Access shared resources, forums, and event calendars. Collaborate with geologists, hydrologists, and engineers across Algeria.</p>
+                        <div class="hero-actions">
+                            <button class="hero-btn forum-btn">
+                                <i class="fa-solid fa-comments"></i> Forum
+                                <span class="badge-new">+12 NEW</span>
+                            </button>
+                            <button class="hero-btn events-btn">
+                                <i class="fa-solid fa-calendar-check"></i> Events
+                                <span class="badge-next">NEXT: 3D</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Knowledge Repository Card -->
+                    <div class="knowledge-card">
+                        <div class="k-header">
+                            <i class="fa-solid fa-comments"></i> KNOWLEDGE REPOSITORY
+                            <i class="fa-solid fa-xmark close-k"></i>
+                        </div>
+                        <div class="k-list">
+                            <div class="k-item">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                                <div class="k-info">
+                                    <h4>Geological Maps Discussion</h4>
+                                    <p>Expert tips on georeferencing (e.g., Borkel map) and coordinate correction.</p>
+                                </div>
+                            </div>
+                            <div class="k-item">
+                                <i class="fa-solid fa-bore-hole"></i>
+                                <div class="k-info">
+                                    <h4>Wells & Irrigation Corner</h4>
+                                    <p>Sharing drilling depths and rock layers in Batna and M'Sila regions.</p>
+                                </div>
+                            </div>
+                            <div class="k-item">
+                                <i class="fa-solid fa-code"></i>
+                                <div class="k-info">
+                                    <h4>Technical Support</h4>
+                                    <p>Guidance on QGIS, MODFLOW, and Prisma platform integration.</p>
+                                </div>
+                            </div>
+                            <div class="k-item">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                                <div class="k-info">
+                                    <h4>Equipment Market</h4>
+                                    <p>Buy/Rent used GPS units and geophysical sensors from fellow engineers.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GIS Knowledge Base List -->
+                    <div class="gis-kb-section">
+                        <div class="section-title">
+                            <i class="fa-solid fa-database"></i> GIS Knowledge Base
+                            <span class="live-tag">LIVE HUB ACTIVE</span>
+                        </div>
+                        <div class="kb-files">
+                            <div class="kb-file">
+                                <i class="fa-solid fa-folder-open file-icon orange"></i>
+                                <div class="file-details">
+                                    <h4>Thermal_Anomalies_Adrar.shp</h4>
+                                    <p>Uploaded by Dr. Mansouri - 2 days ago</p>
+                                </div>
+                                <button class="dl-btn"><i class="fa-solid fa-cloud-arrow-down"></i></button>
+                            </div>
+                            <div class="kb-file">
+                                <i class="fa-solid fa-mountain-sun file-icon green"></i>
+                                <div class="file-details">
+                                    <h4>Fault_Lines_Biskra_V2.geojson</h4>
+                                    <p>Uploaded by Ing. Sahi - 5 hours ago</p>
+                                </div>
+                                <button class="dl-btn"><i class="fa-solid fa-cloud-arrow-down"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Verified Experts Hub -->
+                    <div class="experts-hub-section">
+                        <div class="section-title">
+                            <i class="fa-solid fa-user-check"></i> Verified GIS Experts
+                            <span class="online-count">12 Online Now</span>
+                        </div>
+                        
+                        <!-- Intelligence Hub Banner -->
+                        <div class="intel-hub-banner">
+                            <div class="hub-icon"><i class="fa-solid fa-tower-broadcast"></i></div>
+                            <div class="hub-text">
+                                <h3>Batna Sector Intelligence Hub</h3>
+                                <p>Local basin detected. 5 Verified Engineers are currently on-site or monitoring this sector. Who would you like to consult?</p>
+                            </div>
+                        </div>
+
+                        <!-- Expert Profile Row -->
+                        <div class="expert-row-mini">
+                            <div class="expert-pill">
+                                <div class="avatar-sm green">TD</div>
+                                <div class="e-meta">
+                                    <span class="e-name">Tarek Driss</span>
+                                    <span class="e-spec">CONSULT HYDRO</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+                            <div class="expert-pill">
+                                <div class="avatar-sm blue">DH</div>
+                                <div class="e-meta">
+                                    <span class="e-name">Dinar Haithem</span>
+                                    <span class="e-spec">CONSULT SATELLITE</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+                        </div>
+
+                        <!-- Big Expert Cards -->
+                        <div class="expert-cards-grid">
+                            <div class="expert-card">
+                                <div class="e-header">
+                                    <div class="e-avatar-box">
+                                        <div class="avatar-lg green">
+                                            <i class="fa-solid fa-user-tie"></i>
+                                        </div>
+                                    </div>
+                                    <div class="e-main-info">
+                                        <h3>Tarek Driss</h3>
+                                        <p>Hydrogeology Expert</p>
+                                        <div class="e-tags">
+                                            <span>MODFLOW</span><span>AQUIFER</span><span>GIS-API</span>
+                                        </div>
+                                    </div>
+                                    <span class="verified-badge">VERIFIED</span>
+                                </div>
+                                <div class="e-footer">
+                                    <button class="consult-btn green">CONSULT</button>
+                                    <button class="msg-btn"><i class="fa-solid fa-message"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="expert-card">
+                                <div class="e-header">
+                                    <div class="e-avatar-box">
+                                        <div class="avatar-lg blue">
+                                            <i class="fa-solid fa-user-gear"></i>
+                                        </div>
+                                    </div>
+                                    <div class="e-main-info">
+                                        <h3>Dinar Haithem</h3>
+                                        <p>Remote Sensing Specialist</p>
+                                        <div class="e-tags">
+                                            <span>SAR</span><span>NDVI</span><span>SENTINEL</span>
+                                        </div>
+                                    </div>
+                                    <span class="verified-badge">VERIFIED</span>
+                                </div>
+                                <div class="e-footer">
+                                    <button class="consult-btn blue">CONSULT</button>
+                                    <button class="msg-btn"><i class="fa-solid fa-message"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Status Bar -->
+                    <div class="community-status-bar">
+                        <div class="status-dot"></div>
+                        <span>SYSTEM LINK: NORTH AFRICA SATELLITE ACTIVE</span>
                     </div>
                 </div>
             </div>
@@ -1285,7 +1571,7 @@
                                         </a>
                                         
                                         <!-- Secondary Folder Button -->
-                                        <button onclick="window.open('file:///f:/forager/data/georeferenced/')" style="background:rgba(255,255,255,0.05);color:var(--text-muted);border:1px solid rgba(255,255,255,0.1);padding:0.5rem;border-radius:6px;font-size:0.7rem;cursor:pointer;transition:all 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.1)'" onmouseleave="this.style.background='rgba(255,255,255,0.05)'">
+                                        <button onclick="window.open('#')" style="background:rgba(255,255,255,0.05);color:var(--text-muted);border:1px solid rgba(255,255,255,0.1);padding:0.5rem;border-radius:6px;font-size:0.7rem;cursor:pointer;transition:all 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.1)'" onmouseleave="this.style.background='rgba(255,255,255,0.05)'">
                                             <i class="fa-solid fa-folder-tree"></i> View Output Folder
                                         </button>
                                     </div>
@@ -1616,37 +1902,7 @@
             </div>
         </div>
 
-    <!-- Scripts -->
-    <!-- Google Maps API -->
-    <!-- Leaflet Maps API (Offline Compatible) -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="https://cdn.jsdelivr.net/npm/leaflet-editable@1.2.0/src/Leaflet.Editable.min.js"></script>
-    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
-    <script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/settings.js"></script>
-    <script src="js/mockData.js"></script>
-    <script src="js/mockGISLayers.js"></script>
-    <!-- Priority: Load Real Data First -->
-    
-    <!-- qgisBridge Disabled for Stability -->
-    <!-- <script src="js/qgisBridge.js"></script> --> 
-    <script src="js/qgisData.js"></script>
-    <script src="js/dataLoader.js"></script>
-    <script src="js/ai-analyst.js"></script>
-    <script src="js/ai-ui.js"></script>
-    
-    <!-- Switch to Leaflet Map Implementation -->
-    <script src="js/map.js"></script>
-
-    <script src="js/charts.js"></script>
-    <script src="js/analytics.js"></script>
-    <script src="js/ai_insights.js"></script>
-    <script src="js/wells.js"></script>
-    <script src="js/wqi.js"></script>
-    <script src="js/app.js"></script>
+    <!-- Scripts loaded at end of body -->
     <script>
         function toggleGISSubmenu(e) {
             if (e) e.preventDefault();
@@ -1707,7 +1963,7 @@
         function copyGeorefBridgeCmd(btn) {
             var crs = document.getElementById('georefCRS').value;
             // REAL-WORLD BRIDGE: Use the dynamically synced input map
-            var imagePath = "F:/forager/data/georeferenced/sync_input.png";
+            var imagePath = "data/sync_input.png";
             
             // Gather GCPs
             var gcps = [];
@@ -1765,7 +2021,7 @@
             var gcpJson = JSON.stringify(gcps);
             // Enhanced command: Dynamic region-aware georeferencing + Auto-Background Layer Stacking
             var pythonCmd = "COMMAND_GCP_DATA = {'image': r'" + imagePath + "', 'crs': '" + crs + "', 'gcps': " + gcpJson + "}; ";
-            pythonCmd += "exec(open(r'F:/forager/qgis_plugin/geowell_georef/geowell_georef.py').read()); ";
+            pythonCmd += "exec(open(r'qgis_plugin/geowell_georef/geowell_georef.py').read()); ";
             pythonCmd += "iface.activeLayer().setOpacity(0.5); "; // Transparent for better overlay
             
             if (navigator.clipboard) {
@@ -1964,7 +2220,7 @@
             function finishProcess() {
                 setTimeout(function() {
                         addAiLog("Optimizing file for web delivery...", "info");
-                        addAiLog("GeoTIFF generated successfully at f:/forager/data/georeferenced/", "success");
+                        addAiLog("GeoTIFF generated successfully and ready for sync.", "success");
                         
                         progress.style.display = 'none';
                         result.style.display = 'block';
@@ -1991,7 +2247,7 @@
                             downloadBtn.setAttribute('download', outputName + '.tif');
                         } else {
                             // Fallback to placeholder if something went wrong
-                            downloadBtn.href = 'file:///f:/forager/data/georeferenced/georeferenced_map.tif';
+                            downloadBtn.href = '#';
                         }
                         
                         result.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -2006,32 +2262,32 @@
     </script>
 
     <!-- ===================== LIBRARIES ===================== -->
-    <!-- Leaflet Map -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet Maps API -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-editable@1.2.0/src/Leaflet.Editable.min.js"></script>
+    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+    <script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
+    
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- ===================== APP SCRIPTS ===================== -->
-    <!-- Data layer (must be first) -->
+    <script src="js/settings.js"></script>
     <script src="js/mockData.js"></script>
     <script src="js/mockGISLayers.js"></script>
-    <script src="js/dataLoader.js"></script>
     <script src="js/qgisData.js"></script>
-    <!-- Core logic -->
+    <script src="js/dataLoader.js"></script>
+    <script src="js/ai-analyst.js"></script>
+    <script src="js/ai-ui.js"></script>
     <script src="js/wqi.js"></script>
     <script src="js/map.js"></script>
     <script src="js/wells.js"></script>
     <script src="js/charts.js"></script>
     <script src="js/analytics.js"></script>
     <script src="js/piper.js"></script>
-    <script src="js/settings.js"></script>
     <script src="js/qgisBridge.js"></script>
-    <!-- AI modules -->
     <script src="js/ai_insights.js"></script>
-    <script src="js/ai-analyst.js"></script>
-    <script src="js/ai-ui.js"></script>
-    <!-- Main bootstrap (last) -->
     <script src="js/app.js"></script>
     <script src="js/main.js"></script>
 </body>

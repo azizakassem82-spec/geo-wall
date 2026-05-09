@@ -354,7 +354,7 @@ window.renderLibrary = function(category = 'all', searchQuery = '') {
         if (['doc', 'docx'].includes(doc.type)) { iconClass = 'fa-file-word'; color = '#3742fa'; bgGlow='rgba(55,66,250,0.1)'; }
 
         const base64Data = doc.file ? doc.file : 'data:text/plain;charset=utf-8,' + encodeURIComponent('Mock Document Content for Presentation.');
-        const downloadUrl = (doc.url && doc.url !== '#') ? `http://localhost:3000${doc.url}` : base64Data;
+        const downloadUrl = (doc.url && doc.url !== '#') ? doc.url : base64Data;
         const displayCategory = doc.category.toUpperCase();
 
         const tr = document.createElement('tr');
@@ -986,7 +986,7 @@ function generateMockContours(bounds, numLines = 10) {
  window.switchView = switchView;
  
  window.checkBridgeServer = function() {
-    fetch('http://localhost:3000/api/layers')
+    fetch('/api/layers')
         .then(res => {
             const status = document.getElementById('bridgeStatus');
             if (status) {
@@ -1030,14 +1030,12 @@ window.launchQGIS = function(btn) {
     window.location.href = 'qgis-bridge://open';
 
     // METHOD B: Server Fallback (Background)
-    fetch('http://localhost:3000/api/launch').catch(() => {
+    fetch('/api/launch').catch(() => {
         console.warn("Silent bridge server not active. Using direct protocol.");
     });
 };
 
-// Clean up old bridge logic
 window.showBridgeDiagnostic = null;
-window.checkBridgeServer = null;
 
 window.exportToGIS = function (type, btn) {
     console.log("Generating GIS Data: " + type);
@@ -1297,3 +1295,100 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.switchView = switchView;
+
+/* ==========================================================================
+   ASSETS & COMMUNITY HUB INTERACTIVITY
+   ========================================================================== */
+
+// Handle Asset Booking
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('book-btn')) {
+        const card = e.target.closest('.asset-card');
+        const assetName = card.querySelector('h3').innerText;
+        
+        // Show futuristic notification
+        if (typeof addAiLog === 'function') {
+            addAiLog(`[ASSETS] Initiating booking request for ${assetName}...`, "info");
+            setTimeout(() => {
+                addAiLog(`[ASSETS] ${assetName} reserved successfully. Reservation ID: RSV-${Math.floor(Math.random()*10000)}`, "success");
+                
+                // Visual feedback on button
+                const originalText = e.target.innerText;
+                e.target.innerText = "RESERVED";
+                e.target.style.background = "var(--accent-success)";
+                e.target.disabled = true;
+                
+                setTimeout(() => {
+                    e.target.innerText = originalText;
+                    e.target.style.background = "var(--accent-primary)";
+                    e.target.disabled = false;
+                }, 5000);
+            }, 1500);
+        } else {
+            alert(`Booking request sent for: ${assetName}`);
+        }
+    }
+});
+
+// Handle Expert Consultation
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('consult-btn')) {
+        const card = e.target.closest('.expert-card');
+        const expertName = card.querySelector('h3').innerText;
+        
+        if (typeof addAiLog === 'function') {
+            addAiLog(`[COMMUNITY] Establishing secure link with ${expertName}...`, "info");
+            setTimeout(() => {
+                addAiLog(`[COMMUNITY] Link active. Redirecting to private consultation channel.`, "success");
+            }, 1000);
+        } else {
+            alert(`Establishing consultation link with: ${expertName}`);
+        }
+    }
+});
+
+// Handle Community Actions (Forum, Events)
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.hero-btn');
+    if (btn) {
+        const action = btn.classList.contains('forum-btn') ? "FORUM" : "EVENTS";
+        
+        if (typeof addAiLog === 'function') {
+            addAiLog(`[COMMUNITY] Accessing ${action} database...`, "info");
+        } else {
+            console.log(`Accessing ${action}`);
+        }
+    }
+});
+
+// Handle GIS KB Downloads
+document.addEventListener('click', (e) => {
+    const dlBtn = e.target.closest('.dl-btn');
+    if (dlBtn) {
+        const fileRow = dlBtn.closest('.kb-file');
+        const fileName = fileRow.querySelector('h4').innerText;
+        
+        if (typeof addAiLog === 'function') {
+            addAiLog(`[COMMUNITY] Downloading ${fileName}...`, "info");
+            setTimeout(() => {
+                addAiLog(`[COMMUNITY] Download complete.`, "success");
+            }, 1500);
+        } else {
+            alert(`Downloading: ${fileName}`);
+        }
+    }
+});
+
+// Language Switcher Logic (Simple Mock)
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('lang-pill')) {
+        const parent = e.target.closest('.comm-langs');
+        parent.querySelectorAll('.lang-pill').forEach(p => p.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        const lang = e.target.innerText;
+        if (typeof addAiLog === 'function') {
+            addAiLog(`[COMMUNITY] Language context switched to ${lang}.`, "info");
+        }
+    }
+});
