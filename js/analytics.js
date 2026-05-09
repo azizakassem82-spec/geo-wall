@@ -935,21 +935,120 @@ function updateAnalyticsWellPills() {
     }
 }
 
-/** Toggle the wells dropdown panel */
-function toggleAnalyticsWellDropdown() {
-    const sel = document.getElementById('analyticsWellSelector');
+/** Temporary selection state while the panel is open */
+let _analyticsWellTempSelection = new Set();
+
+/** Toggle the well selector floating panel */
+function toggleAnalyticsWellDropdown(event) {
+    let sel = document.getElementById('analyticsWellSelector');
     if (!sel) return;
-    if (sel.style.display === 'none' || !sel.style.display) {
-        // Build a simple list of all wells
-        const pool = window.analyticsEngine ? window.analyticsEngine._getGlobalPool() : mockData.rigs;
-        sel.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:0.4rem;padding:0.5rem 0;">${
-            pool.map(w => `<span class="cws-chip" style="cursor:pointer;" onclick="highlightWellOnAnalytics('${w.id}')">${w.name||w.id}</span>`).join('')
-        }</div>`;
-        sel.style.display = 'block';
-    } else {
-        sel.style.display = 'none';
+
+    if (sel.style.display === 'flex') {
+        closeAnalyticsWellDropdown();
+        return;
+    }
+
+    // Move panel to body-level on first use to escape any overflow:hidden parents
+    if (sel.parentElement && sel.parentElement !== document.body) {
+        document.body.appendChild(sel);
+    }
+
+    // Seed temp selection from current global state (use first chart as reference)
+    const currentPool = window.analyticsEngine ? window.analyticsEngine._getGlobalPool() : mockData.rigs;
+    const currentIds  = (chartWellState[CHART_IDS[0]] || []).filter(id => currentPool.some(w => w.id === id));
+    _analyticsWellTempSelection = new Set(currentIds.length > 0 ? currentIds : currentPool.map(w => w.id));
+
+    // Position below the button
+    const btn = document.getElementById('btnWellDropdown');
+    if (btn) {
+        const rect = btn.getBoundingClientRect();
+        sel.style.top  = (rect.bottom + 8 + window.scrollY) + 'px';
+        const left = Math.max(8, rect.right - 420);
+        sel.style.left = left + 'px';
+    }
+
+    sel.style.display = 'flex';
+
+    // Clear search
+    const search = document.getElementById('analyticsWellSearch');
+    if (search) search.value = '';
+
+    renderAnalyticsWellList();
+
+    // Close on outside click
+    setTimeout(() => {
+        document.addEventListener('mousedown', _outsideAnalyticsClick);
+    }, 10);
+}
+
+function _outsideAnalyticsClick(e) {
+    const sel = document.getElementById('analyticsWellSelector');
+    const btn = document.getElementById('btnWellDropdown');
+    if (sel && !sel.contains(e.target) && btn && !btn.contains(e.target)) {
+        closeAnalyticsWellDropdown();
     }
 }
+
+window.closeAnalyticsWellDropdown = function() {
+    const sel = document.getElementById('analyticsWellSelector');
+    if (sel) sel.style.display = 'none';
+    document.removeEventListener('mousedown', _outsideAnalyticsClick);
+};
+
+window.renderAnalyticsWellList = function() {
+    const list  = document.getElementById('analyticsWellList');
+    const count = document.getElementById('analyticsWellCount');
+    const query = (document.getElementById('analyticsWellSearch')?.value || '').toLowerCase();
+    if (!list) return;
+
+    const pool = window.analyticsEngine ? window.analyticsEngine._getGlobalPool() : mockData.rigs;
+    const filtered = pool.filter(w => !query || (w.name || w.id).toLowerCase().includes(query) || (w.district || '').toLowerCase().includes(query));
+
+    list.innerHTML = '';
+    filtered.forEach(w => {
+        const selected = _analyticsWellTempSelection.has(w.id);
+        const chip = document.createElement('span');
+        chip.style.cssText = `display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;border:1px solid ${selected ? '#00d4ff' : 'rgba(255,255,255,0.12)'};background:${selected ? 'rgba(0,212,255,0.15)' : 'rgba(255,255,255,0.04)'};color:${selected ? '#00d4ff' : '#94a3b8'};font-size:0.78rem;cursor:pointer;transition:all 0.15s;user-select:none;white-space:nowrap;`;
+        chip.innerHTML = `${selected ? '<i class="fa-solid fa-check" style="font-size:0.65rem;"></i> ' : ''}<span>${w.name || w.id}</span>`;
+
+        chip.addEventListener('click', () => {
+            if (_analyticsWellTempSelection.has(w.id)) {
+                _analyticsWellTempSelection.delete(w.id);
+            } else {
+                _analyticsWellTempSelection.add(w.id);
+            }
+            renderAnalyticsWellList();
+        });
+        list.appendChild(chip);
+    });
+
+    if (count) count.textContent = `${_analyticsWellTempSelection.size} well${_analyticsWellTempSelection.size !== 1 ? 's' : ''} selected`;
+};
+
+window.analyticsSelectAll = function() {
+    const pool = window.analyticsEngine ? window.analyticsEngine._getGlobalPool() : mockData.rigs;
+    pool.forEach(w => _analyticsWellTempSelection.add(w.id));
+    renderAnalyticsWellList();
+};
+
+window.analyticsSelectNone = function() {
+    _analyticsWellTempSelection.clear();
+    renderAnalyticsWellList();
+};
+
+/** Apply selected wells to all charts and close the panel */
+window.applyAnalyticsWellSelection = function() {
+    const ids = [..._analyticsWellTempSelection];
+    CHART_IDS.forEach(cid => { chartWellState[cid] = [...ids]; });
+    CHART_IDS.forEach(cid => window.analyticsEngine.buildWellPanel(cid));
+    window.analyticsEngine.refresh();
+    updateAnalyticsKPIs();
+    updateAnalyticsWellPills();
+    closeAnalyticsWellDropdown();
+    if (typeof runWQIAll === 'function') runWQIAll();
+};
+
+
 
 /** Export a CSV report of WQI results for the current filter pool */
 function exportAnalyticsReport() {
@@ -985,3 +1084,4 @@ window.updateAnalyticsKPIs = updateAnalyticsKPIs;
 window.updateAnalyticsWellPills = updateAnalyticsWellPills;
 window.toggleAnalyticsWellDropdown = toggleAnalyticsWellDropdown;
 window.exportAnalyticsReport = exportAnalyticsReport;
+

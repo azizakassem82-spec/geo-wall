@@ -241,31 +241,31 @@ function handleWellSubmit(e) {
 
     const wellData = {
         id: wellIdToSave,
-        name: document.getElementById('wellName').value,
+        name: document.getElementById('wellName').value || 'Unnamed Well',
         country: document.getElementById('wellCountry').value,
         state: document.getElementById('wellState').value,
         district: document.getElementById('wellDistrict').value,
         location: document.getElementById('wellLocation').value,
-        lat: parseFloat(document.getElementById('wellLat').value),
-        lng: parseFloat(document.getElementById('wellLng').value),
+        lat: parseFloat(document.getElementById('wellLat').value) || 0,
+        lng: parseFloat(document.getElementById('wellLng').value) || 0,
         wellType: document.getElementById('wellType').value,
         pumpType: document.getElementById('pumpType').value,
         usage: document.getElementById('wellUsage').value,
-        depth: parseInt(document.getElementById('wellDepth').value),
-        production: parseInt(document.getElementById('wellProduction').value),
+        depth: parseInt(document.getElementById('wellDepth').value) || 0,
+        production: parseInt(document.getElementById('wellProduction').value) || 0,
         status: document.getElementById('wellStatus').value,
         hydraulics: {
-            staticLevel: parseFloat(document.getElementById('staticLevel').value),
-            dynamicLevel: parseFloat(document.getElementById('dynamicLevel').value),
-            piezometricLevel: parseFloat(document.getElementById('piezoLevel').value),
-            discharge: parseFloat(document.getElementById('discharge').value),
-            distance: parseFloat(document.getElementById('distance').value)
+            staticLevel: parseFloat(document.getElementById('staticLevel').value) || 0,
+            dynamicLevel: parseFloat(document.getElementById('dynamicLevel').value) || 0,
+            piezometricLevel: parseFloat(document.getElementById('piezoLevel').value) || 0,
+            discharge: parseFloat(document.getElementById('discharge').value) || 0,
+            distance: parseFloat(document.getElementById('distance').value) || 0
         },
         physical: {
-            temp: parseFloat(document.getElementById('qualityTemp').value),
-            ph: parseFloat(document.getElementById('qualityPh').value),
-            tds: parseFloat(document.getElementById('qualityTds').value),
-            conductivity: parseFloat(document.getElementById('qualityCond').value)
+            temp: parseFloat(document.getElementById('qualityTemp').value) || 0,
+            ph: parseFloat(document.getElementById('qualityPh').value) || 0,
+            tds: parseFloat(document.getElementById('qualityTds').value) || 0,
+            conductivity: parseFloat(document.getElementById('qualityCond').value) || 0
         },
         chemical: { cations, anions }
     };

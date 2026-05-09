@@ -718,6 +718,117 @@ function simulateLiveUpdates() {
     }, 12000); // Check every 12 seconds
 }
 
+// =============================================
+// GEOWELL AI ENGINE — DASHBOARD ANALYSIS
+// =============================================
+window.runDashboardAIAnalysis = function() {
+    const btn = document.getElementById('btnGeoWellAI');
+    const badge = document.getElementById('dashAiStatusBadge');
+    const panel = document.getElementById('dashboardAiPanel');
+    const content = document.getElementById('dashboardAiContent');
+    if (!panel || !content) return;
+
+    // Animate button
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analysing...';
+    }
+    if (badge) { badge.textContent = 'Running...'; badge.style.color = '#ffbf00'; badge.style.background = 'rgba(255,191,0,0.1)'; badge.style.borderColor = 'rgba(255,191,0,0.3)'; }
+
+    // Show panel with loader
+    panel.style.display = 'block';
+    content.innerHTML = `
+        <div style="display:flex;align-items:center;gap:1rem;padding:1rem 0;color:#94a3b8;">
+            <div style="width:36px;height:36px;border-radius:50%;border:3px solid rgba(0,212,255,0.2);border-top-color:#00d4ff;animation:spin 0.8s linear infinite;flex-shrink:0;"></div>
+            <span style="font-size:0.95rem;">GeoWell AI Engine is reading well telemetry and water quality data...</span>
+        </div>
+        <style>@keyframes spin{to{transform:rotate(360deg);}}</style>`;
+
+    setTimeout(() => {
+        // ---- Gather live data from mockData ----
+        const rigs = (window.mockData && window.mockData.rigs) || [];
+        const total = rigs.length;
+        const active = rigs.filter(r => r.status === 'Active' || r.status === 'operational').length;
+        const offline = rigs.filter(r => r.status === 'offline').length;
+        const maint = total - active - offline;
+        const alerts = (window.mockData && window.mockData.alerts) || [];
+        const critical = alerts.filter(a => a.severity === 'critical').length;
+        const warnings = alerts.filter(a => a.severity === 'warning').length;
+
+        // WQI average from wells that have it
+        const wqiVals = rigs.map(r => r.wqi || r.WQI).filter(v => v !== undefined && !isNaN(v));
+        const avgWqi = wqiVals.length ? (wqiVals.reduce((a,b)=>a+b,0)/wqiVals.length).toFixed(1) : '—';
+        const wqiColor = avgWqi === '—' ? '#94a3b8' : (avgWqi < 50 ? '#2ed573' : avgWqi < 100 ? '#ffbf00' : '#ff4757');
+        const wqiLabel = avgWqi === '—' ? 'N/A' : (avgWqi < 50 ? 'Excellent' : avgWqi < 100 ? 'Good' : avgWqi < 200 ? 'Poor' : 'Very Poor');
+
+        // Efficiency score (0–100)
+        const efficiency = total ? Math.round((active / total) * 100) : 0;
+        const effColor = efficiency >= 80 ? '#2ed573' : efficiency >= 50 ? '#ffbf00' : '#ff4757';
+
+        // Risk level
+        let riskLevel = 'LOW', riskColor = '#2ed573', riskIcon = 'fa-shield-halved';
+        if (critical >= 2 || efficiency < 50) { riskLevel = 'HIGH'; riskColor = '#ff4757'; riskIcon = 'fa-triangle-exclamation'; }
+        else if (critical >= 1 || warnings >= 2 || efficiency < 75) { riskLevel = 'MEDIUM'; riskColor = '#ffbf00'; riskIcon = 'fa-circle-exclamation'; }
+
+        // Generate contextual recommendations
+        const recs = [];
+        if (offline > 0) recs.push({ icon: 'fa-wrench', color: '#ff4757', text: `${offline} well(s) offline — schedule immediate field inspection.` });
+        if (maint > 0)   recs.push({ icon: 'fa-screwdriver-wrench', color: '#ffbf00', text: `${maint} well(s) in maintenance — monitor turnaround time.` });
+        if (critical > 0) recs.push({ icon: 'fa-bolt', color: '#ff4757', text: `${critical} critical alert(s) active — prioritize hydrochemical sampling.` });
+        if (avgWqi !== '—' && parseFloat(avgWqi) > 100) recs.push({ icon: 'fa-droplet', color: '#ff4757', text: `Average WQI (${avgWqi}) exceeds safe threshold — review ion concentrations.` });
+        if (efficiency >= 90) recs.push({ icon: 'fa-circle-check', color: '#2ed573', text: 'Fleet efficiency is excellent. Continue scheduled monitoring intervals.' });
+        if (recs.length === 0) recs.push({ icon: 'fa-circle-check', color: '#2ed573', text: 'All systems operating within normal parameters.' });
+
+        const recsHtml = recs.map(r => `
+            <div style="display:flex;align-items:flex-start;gap:0.7rem;padding:0.6rem 0.8rem;border-radius:8px;background:rgba(255,255,255,0.03);margin-bottom:0.4rem;border-left:3px solid ${r.color};">
+                <i class="fa-solid ${r.icon}" style="color:${r.color};margin-top:2px;flex-shrink:0;"></i>
+                <span style="font-size:0.88rem;color:#cbd5e1;line-height:1.4;">${r.text}</span>
+            </div>`).join('');
+
+        content.innerHTML = `
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.2rem;">
+                <!-- KPI: Fleet Status -->
+                <div style="background:rgba(0,0,0,0.2);border-radius:10px;padding:1rem;border:1px solid rgba(255,255,255,0.07);text-align:center;">
+                    <div style="font-size:0.7rem;text-transform:uppercase;color:#64748b;letter-spacing:1px;margin-bottom:0.4rem;">Fleet Status</div>
+                    <div style="font-size:1.6rem;font-weight:800;color:${effColor};font-family:'Orbitron',sans-serif;">${efficiency}%</div>
+                    <div style="font-size:0.75rem;color:#94a3b8;margin-top:0.2rem;">${active}/${total} Active</div>
+                </div>
+                <!-- KPI: Avg WQI -->
+                <div style="background:rgba(0,0,0,0.2);border-radius:10px;padding:1rem;border:1px solid rgba(255,255,255,0.07);text-align:center;">
+                    <div style="font-size:0.7rem;text-transform:uppercase;color:#64748b;letter-spacing:1px;margin-bottom:0.4rem;">Avg WQI</div>
+                    <div style="font-size:1.6rem;font-weight:800;color:${wqiColor};font-family:'Orbitron',sans-serif;">${avgWqi}</div>
+                    <div style="font-size:0.75rem;color:#94a3b8;margin-top:0.2rem;">${wqiLabel}</div>
+                </div>
+                <!-- KPI: Risk Level -->
+                <div style="background:rgba(0,0,0,0.2);border-radius:10px;padding:1rem;border:1px solid rgba(255,255,255,0.07);text-align:center;">
+                    <div style="font-size:0.7rem;text-transform:uppercase;color:#64748b;letter-spacing:1px;margin-bottom:0.4rem;">Risk Level</div>
+                    <div style="font-size:1.3rem;font-weight:800;color:${riskColor};font-family:'Orbitron',sans-serif;"><i class="fa-solid ${riskIcon}"></i> ${riskLevel}</div>
+                    <div style="font-size:0.75rem;color:#94a3b8;margin-top:0.2rem;">${critical} Critical / ${warnings} Warnings</div>
+                </div>
+                <!-- KPI: Offline Wells -->
+                <div style="background:rgba(0,0,0,0.2);border-radius:10px;padding:1rem;border:1px solid rgba(255,255,255,0.07);text-align:center;">
+                    <div style="font-size:0.7rem;text-transform:uppercase;color:#64748b;letter-spacing:1px;margin-bottom:0.4rem;">Offline Wells</div>
+                    <div style="font-size:1.6rem;font-weight:800;color:${offline>0?'#ff4757':'#2ed573'};font-family:'Orbitron',sans-serif;">${offline}</div>
+                    <div style="font-size:0.75rem;color:#94a3b8;margin-top:0.2rem;">${maint} In Maintenance</div>
+                </div>
+            </div>
+            <!-- AI Recommendations -->
+            <div style="margin-bottom:0.5rem;">
+                <div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:#64748b;margin-bottom:0.6rem;display:flex;align-items:center;gap:0.4rem;">
+                    <i class="fa-solid fa-wand-magic-sparkles" style="color:#00d4ff;"></i> AI Recommendations
+                </div>
+                ${recsHtml}
+            </div>
+            <div style="font-size:0.72rem;color:#334155;text-align:right;margin-top:0.5rem;">
+                <i class="fa-solid fa-brain"></i> GeoWell AI Engine · ${new Date().toLocaleTimeString()}
+            </div>`;
+
+        // Restore button
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Re-Analyse'; }
+        if (badge) { badge.textContent = 'Complete'; badge.style.color = '#2ed573'; badge.style.background = 'rgba(46,213,115,0.1)'; badge.style.borderColor = 'rgba(46,213,115,0.3)'; }
+    }, 1800);
+};
+
 // NAVIGATION
 function setupNavigation() {
     const navItems = document.querySelectorAll('.nav-item[data-view]');

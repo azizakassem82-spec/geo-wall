@@ -16,12 +16,16 @@ class wellMap {
             editable: true 
         }).setView([31.5, 5.5], 8);
 
-        // Start with OpenStreetMap (Street View)
-        this.baseLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}', {
-            attribution: '&copy; Google Maps',
-            maxZoom: 22,
-            maxNativeZoom: 20
-        }).addTo(this.map);
+        // Create a dedicated layer group for the basemap so we can swap tiles reliably
+        this.baseMapGroup = L.layerGroup().addTo(this.map);
+
+        // Start with ESRI Street Map
+        this.baseLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; Esri &mdash; Sources: Esri, HERE, Garmin, USGS',
+            maxZoom: 20,
+            maxNativeZoom: 19
+        });
+        this.baseMapGroup.addLayer(this.baseLayer);
 
         // Initialize marker layer group
         this.markerLayer = L.layerGroup().addTo(this.map);
@@ -223,41 +227,54 @@ class wellMap {
     }
 
     changeBaseLayer(type) {
-        // Remove existing base layer
-        if (this.baseLayer) {
-            this.map.removeLayer(this.baseLayer);
+        let url, attribution, maxNative;
+
+        if (type === 'satellite') {
+            url         = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+            attribution = '&copy; Esri &mdash; Source: Esri, Maxar, GeoEye, Earthstar Geographics';
+            maxNative   = 19;
+        } else if (type === 'earth') {
+            url         = 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}';
+            attribution = '&copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ';
+            maxNative   = 16;
+        } else {
+            // default / street-map
+            url         = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
+            attribution = '&copy; Esri &mdash; World Street Map';
+            maxNative   = 19;
         }
 
-        let url = '';
-        let attribution = '';
+        console.log('[GeoWell] changeBaseLayer →', type, url);
 
-        if (type === 'street-map') {
-            // GOOGLE TERRAIN (Requested: Relief/Plan)
-            url = 'https://mt1.google.com/vt/lyrs=p&hl=en&x={x}&y={y}&z={z}';
-            attribution = '&copy; Google Maps Terrain';
-        } else if (type === 'satellite') {
-            // GOOGLE HYBRID (Requested: Satellite + Legend/Labels)
-            url = 'https://mt1.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}';
-            attribution = '&copy; Google Maps Satellite';
-        } else if (type === 'dark') {
-            url = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-            attribution = '&copy; CARTO';
+        // Use the dedicated group: clear old tiles, add new ones
+        if (this.baseMapGroup) {
+            this.baseMapGroup.clearLayers();
         } else {
-            url = 'https://mt1.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}';
-            attribution = '&copy; Google Maps';
+            // Fallback: remove individual layer if group wasn't created
+            if (this.baseLayer && this.map.hasLayer(this.baseLayer)) {
+                this.map.removeLayer(this.baseLayer);
+            }
         }
 
         this.baseLayer = L.tileLayer(url, {
-            attribution: attribution,
-            maxZoom: 22,
-            maxNativeZoom: 20
-        }).addTo(this.map);
+            attribution,
+            maxZoom: 20,
+            maxNativeZoom: maxNative
+        });
 
-        // Ensure markers stay on top
+        if (this.baseMapGroup) {
+            this.baseMapGroup.addLayer(this.baseLayer);
+        } else {
+            this.baseLayer.addTo(this.map);
+        }
+
+        // Re-add marker layer on top (remove + re-add since bringToFront doesn't exist on LayerGroup)
         if (this.markerLayer) {
-            this.markerLayer.bringToFront();
+            this.markerLayer.remove();
+            this.markerLayer.addTo(this.map);
         }
     }
+
 
     // Support for QGIS Layers (Missing in original map.js)
     addGenericLayer(geojsonData, layerName) {
@@ -364,18 +381,71 @@ window.resetWellPosition = function(wellId) {
     }
 };
 
-function changeBasemap(type) {
-    if (!mainMap) return;
-
-    mainMap.changeBaseLayer(type);
+window.changeBasemap = function changeBasemap(type) {
+    const map = window.mainMap;
+    if (!map) {
+        console.warn('[GeoWell] changeBasemap called but window.mainMap is not ready yet.');
+        return;
+    }
+    console.log('[GeoWell] Switching basemap to:', type);
+    map.changeBaseLayer(type);
 
     // Update active button state
-    document.querySelectorAll('.card-actions .sm-btn').forEach(btn => btn.classList.remove('active'));
-    if (type === 'street-map') {
-        const btn = document.getElementById('btnMapStreets');
-        if (btn) btn.classList.add('active');
-    } else if (type === 'satellite') {
-        const btn = document.getElementById('btnMapSatellite');
-        if (btn) btn.classList.add('active');
+    ['btnMapStreets', 'btnMapSatellite', 'btnMapEarth'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+    });
+    const activeIds = { 'street-map': 'btnMapStreets', 'satellite': 'btnMapSatellite', 'earth': 'btnMapEarth' };
+    const activeBtn = document.getElementById(activeIds[type]);
+    if (activeBtn) activeBtn.classList.add('active');
+};
+
+
+// Full-screen map basemap switcher
+window.changeFullMapBasemap = function(type) {
+    if (!window.fullMap) return;
+
+    const layerMap = {
+        street:    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        earth:     'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}'
+    };
+    const attrMap = {
+        street:    '&copy; Esri — World Street Map',
+        satellite: '&copy; Esri — World Imagery (Maxar, GeoEye)',
+        earth:     '&copy; Esri — National Geographic'
+    };
+    const nativeMap = { street: 19, satellite: 19, earth: 16 };
+
+    if (window.fullMap.baseLayer) {
+        window.fullMap.map.removeLayer(window.fullMap.baseLayer);
     }
-}
+    window.fullMap.baseLayer = L.tileLayer(layerMap[type] || layerMap.street, {
+        attribution: attrMap[type] || attrMap.street,
+        maxZoom: 20,
+        maxNativeZoom: nativeMap[type] || 19
+    }).addTo(window.fullMap.map);
+
+    // Re-add markers on top
+    if (window.fullMap.markerLayer) {
+        window.fullMap.markerLayer.remove();
+        window.fullMap.markerLayer.addTo(window.fullMap.map);
+    }
+
+    // Update button styles
+    ['fmBtnStreet','fmBtnSatellite','fmBtnEarth'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.style.background = 'transparent';
+        btn.style.color = '#94a3b8';
+        btn.style.border = '1px solid transparent';
+    });
+    const activeMap = { street: 'fmBtnStreet', satellite: 'fmBtnSatellite', earth: 'fmBtnEarth' };
+    const activeBtn = document.getElementById(activeMap[type]);
+    if (activeBtn) {
+        activeBtn.style.background = 'rgba(0,212,255,0.15)';
+        activeBtn.style.color = '#00d4ff';
+        activeBtn.style.border = '1px solid rgba(0,212,255,0.3)';
+    }
+};
+

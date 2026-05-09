@@ -102,12 +102,9 @@ window.toggleGISSubmenu = function(e) {
     }
 };
 
-// 7. Mock functions for Map actions to prevent JS errors
-window.changeBasemap = function(type) {
-    const btns = document.querySelectorAll('.card-actions .sm-btn');
-    btns.forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
-};
+// changeBasemap is defined in map.js — do not redefine here.
+
+
 
 let mockGeoLayer = null;
 window.toggleNeuralHeatmap = function() {
