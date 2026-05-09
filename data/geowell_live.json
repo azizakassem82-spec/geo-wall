@@ -1,0 +1,104 @@
+{
+    "type": "FeatureCollection",
+    "name": "GeoWell Live Data - من QGIS",
+    "crs": {
+        "type": "name",
+        "properties": {
+            "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+        }
+    },
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 1,
+                "name": "Well F3 (Test)",
+                "state": "Batna",
+                "status": "operational"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    5.5667,
+                    35.5833
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 2,
+                "name": "Well A7",
+                "state": "Batna",
+                "status": "operational"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    6.1743,
+                    35.5559
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 3,
+                "name": "Main Pipeline",
+                "status": "Active"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        5.5667,
+                        35.5833
+                    ],
+                    [
+                        5.8000,
+                        35.6500
+                    ],
+                    [
+                        6.1743,
+                        35.5559
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": 4,
+                "zone_type": "Protected Area",
+                "description": "منطقة محمية طبيعية"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            5.4000,
+                            35.4000
+                        ],
+                        [
+                            5.4000,
+                            35.5500
+                        ],
+                        [
+                            5.6000,
+                            35.5500
+                        ],
+                        [
+                            5.6000,
+                            35.4000
+                        ],
+                        [
+                            5.4000,
+                            35.4000
+                        ]
+                    ]
+                ]
+            }
+        }
+    ]
+}

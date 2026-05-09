@@ -1,0 +1,10 @@
+{
+  "name": "geowell-dashboard",
+  "version": "2.0.0",
+  "description": "GeoWell — Smart Water Management & Hydrogeology Platform",
+  "scripts": {
+    "dev": "npx serve . -p 5173",
+    "start": "npx serve . -p 5173"
+  },
+  "devDependencies": {}
+}

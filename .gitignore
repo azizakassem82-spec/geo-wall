@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+
+# Backend / server files (not needed for static deploy)
+server.js
+pg_service.conf
+database_setup.sql
+create_dummy_layers.sql
+create_gis_layers.sql
+
+# QGIS project files
+*.qgs
+*.qgs~
+*.qmd
+qgis_plugin/
+qgis_auto_connect.py
+qgis_sync_tool.py
+setup_qgis_auto.ps1
+launch_qgis_auto.bat
+QGIS_*.md
+
+# Build / automation scripts
+fix_analytics.js
+fix_analytics.ps1
+fix_analytics.py
+fix_button.py
+fix_encoding.py
+cleanup_index.py
+inject_ai_panels.ps1
+install_automation.bat
+Launch_Everything.bat
+launch_full_system.bat
+start_server.bat
+setup_qgis_bridge.bat
+convert_qgis_data.bat
+
+# Large / binary files
+*.rar
+*.zip
+*.vsix
+*.bat
+*.py
+*.ps1
+*.sql
+
+# Temp files
+Edit)
+فتح_بدون_كلمة_سر.bat
+
+# Vercel cache
+.vercel/
