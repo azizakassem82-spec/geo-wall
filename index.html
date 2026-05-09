@@ -2004,6 +2004,36 @@
             nextStep();
         }
     </script>
+
+    <!-- ===================== LIBRARIES ===================== -->
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- ===================== APP SCRIPTS ===================== -->
+    <!-- Data layer (must be first) -->
+    <script src="js/mockData.js"></script>
+    <script src="js/mockGISLayers.js"></script>
+    <script src="js/dataLoader.js"></script>
+    <script src="js/qgisData.js"></script>
+    <!-- Core logic -->
+    <script src="js/wqi.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/wells.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/piper.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/qgisBridge.js"></script>
+    <!-- AI modules -->
+    <script src="js/ai_insights.js"></script>
+    <script src="js/ai-analyst.js"></script>
+    <script src="js/ai-ui.js"></script>
+    <!-- Main bootstrap (last) -->
+    <script src="js/app.js"></script>
+    <script src="js/main.js"></script>
 </body>
 
 </html>
