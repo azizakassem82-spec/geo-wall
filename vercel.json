@@ -1,6 +1,8 @@
 {
-  "outputDirectory": "dist",
-  "framework": "vite",
+  "buildCommand": "echo 'No build required for static site'",
+  "installCommand": "echo 'No install required'",
+  "outputDirectory": ".",
+  "framework": null,
   "headers": [
     {
       "source": "/(.*)",
