@@ -345,15 +345,15 @@
                             </div>
                             <!-- Buttons -->
                             <div style="display:flex;gap:0.5rem;flex-shrink:0;">
-                                <button class="action-btn" onclick="applyGlobalWellFilter()" id="btnAnalyze">
-                                    <i class="fa-solid fa-chart-line"></i>
+                                <button class="action-btn" onclick="openWQIMethodology()" id="btnAnalyze" style="background:rgba(0,212,255,0.1); border:1px solid rgba(0,212,255,0.5); color:#00d4ff; font-weight:600; padding:8px 16px;">
+                                    <i class="fa-solid fa-book-open"></i>
                                     <span data-i18n="analyze">Analyze</span>
                                 </button>
-                                <button class="action-btn" onclick="exportAnalyticsReport()" style="background:linear-gradient(135deg,#00c853,#00e676);color:#000;">
+                                <button class="action-btn" onclick="exportAnalyticsReport()" style="background:linear-gradient(135deg,#00ff9d,#00e676); color:#000; font-weight:700; border:none; padding:8px 16px;">
                                     <i class="fa-solid fa-file-arrow-down"></i> Export Report
                                 </button>
-                                <button class="btn-cancel" onclick="resetAnalyticsFilters()" title="Reset">
-                                    <i class="fa-solid fa-rotate-left"></i>
+                                <button class="action-btn" onclick="resetAnalyticsFilters()" title="Reset" style="background:rgba(0,255,157,0.05); border:1px solid rgba(0,255,157,0.4); color:#00ff9d; padding:8px 16px;">
+                                    <i class="fa-solid fa-rotate-right"></i> Refresh
                                 </button>
                             </div>
                         </div>
@@ -2318,7 +2318,7 @@
     <script src="js/dataLoader.js"></script>
     <script src="js/ai-analyst.js"></script>
     <script src="js/ai-ui.js"></script>
-    <script src="js/wqi.js"></script>
+    <script src="js/wqi.js?v=2"></script>
     <script src="js/map.js"></script>
     <script src="js/wells.js"></script>
     <script src="js/charts.js"></script>

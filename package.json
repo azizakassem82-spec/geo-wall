@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "npx serve . -p 5173",
     "start": "npx serve . -p 5173",
+    "build": "vite build",
     "server": "node server.js"
   },
   "dependencies": {
@@ -13,6 +14,7 @@
     "pg": "^8.11.3"
   },
   "devDependencies": {
-    "serve": "^14.2.1"
+    "serve": "^14.2.1",
+    "vite": "^8.0.12"
   }
 }

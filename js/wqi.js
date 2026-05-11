@@ -211,49 +211,191 @@ function renderWQIPanel(well, wqi, cls, details, params, trend) {
 }
 
 function renderWQISummaryPanel(results) {
-    // Inject into Analytics view — create or update WQI summary card
     let panel = document.getElementById('wqiSummaryCard');
     if (!panel) {
         panel = document.createElement('div');
         panel.id = 'wqiSummaryCard';
         panel.className = 'card';
-        panel.style.cssText = 'margin-bottom:1.5rem;border:1px solid rgba(0,212,255,0.3);';
+        panel.style.cssText = 'margin-bottom:1.5rem; border:1px solid rgba(0,212,255,0.15); overflow:hidden; background:var(--bg-card);';
         const grid = document.querySelector('#view-analytics .dashboard-grid');
-        if (grid) grid.insertBefore(panel, grid.firstChild);
+        if (grid) {
+            const kpiRow = document.getElementById('analyticsKpiRow');
+            if (kpiRow && kpiRow.nextElementSibling) {
+                grid.insertBefore(panel, kpiRow.nextElementSibling);
+            } else {
+                grid.insertBefore(panel, grid.firstChild);
+            }
+        }
     }
 
-    const rows = results.slice(0, 10).map(r => `
-        <tr>
-            <td style="padding:8px 12px;font-weight:600;">${r.id}</td>
-            <td style="padding:8px 12px;">${r.name}</td>
-            <td style="padding:8px 12px;">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <div style="width:${Math.min(r.wqi,200)/2}px;max-width:100px;height:8px;border-radius:4px;background:${r.color};"></div>
-                    <strong style="font-family:'Orbitron',sans-serif;color:${r.color};">${r.wqi}</strong>
+    // Build Wells Pills for subheader
+    const show = results.slice(0, 3);
+    let pillsHTML = show.map(r => `<span style="display:inline-block; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:600; background:rgba(0,212,255,0.15); color:#00d4ff; border:1px solid rgba(0,212,255,0.3); margin-right:4px;">${r.name}</span>`).join('');
+    if (results.length > 3) {
+        pillsHTML += `<span style="display:inline-block; padding:3px 8px; border-radius:12px; font-size:0.75rem; font-weight:600; background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid rgba(255,255,255,0.1);">+${results.length - 3}</span>`;
+    }
+
+    const rows = results.map(r => {
+        const well = mockData.rigs.find(w => w.id === r.id);
+        const trend = well ? predictTrend(well, r.wqi) : { predicted12m: r.wqi };
+        const trendLabel = trend.predicted12m > r.wqi ? 'Moderate' : 'Stable';
+        const trendColor = trend.predicted12m > r.wqi ? '#ffbf00' : '#00ff9d';
+        
+        let insight = "Water quality parameters show stability for the upcoming 12 months.";
+        if (well && well.physical?.tds > 1000) insight = "Increasing TDS trends detected. Monitor salinity intrusion monthly.";
+        else if (r.wqi > 100) insight = "Critical ion concentrations detected. Immediate treatment required.";
+        else if (trend.predicted12m > r.wqi) insight = "Slight degradation trend. Monitor seasonal fluctuations.";
+
+        return `
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.03); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+            <td style="padding:1.2rem 1.5rem; vertical-align:middle;">
+                <div style="font-weight:700; color:#fff; font-size:0.95rem; margin-bottom:2px;">${r.name}</div>
+                <div style="font-size:0.75rem; color:#64748b;">${r.id}</div>
+            </td>
+            <td style="padding:1.2rem 1.5rem; vertical-align:middle;">
+                <div style="font-weight:700; font-size:1.1rem; color:#fff;">${r.wqi}</div>
+            </td>
+            <td style="padding:1.2rem 1.5rem; vertical-align:middle;">
+                <span style="display:inline-block; padding:4px 12px; border-radius:4px; font-size:0.75rem; font-weight:600; background:transparent; color:${r.color}; border:1px solid ${r.color}; text-transform:none;">${r.label}</span>
+            </td>
+            <td style="padding:1.2rem 1.5rem; vertical-align:middle;">
+                <div style="display:flex; align-items:center; gap:8px; color:#fff; font-size:0.85rem; font-weight:500;">
+                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${trendColor}; box-shadow:0 0 5px ${trendColor};"></span>
+                    ${trendLabel}
                 </div>
             </td>
-            <td style="padding:8px 12px;"><span style="padding:3px 10px;border-radius:12px;font-size:0.75rem;font-weight:700;background:${r.color}22;color:${r.color};border:1px solid ${r.color}44;">${r.label}</span></td>
-            <td style="padding:8px 12px;"><button onclick="runWQIAnalysis('${r.id}')" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:#00d4ff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:0.75rem;">View Details</button></td>
-        </tr>`).join('');
+            <td style="padding:1.2rem 1.5rem; vertical-align:middle; max-width:400px;">
+                <div style="font-size:0.85rem; color:#94a3b8; line-height:1.5;">${insight}</div>
+            </td>
+        </tr>`;
+    }).join('');
 
     panel.innerHTML = `
-        <div class="card-header">
-            <h3><i class="fa-solid fa-flask-vial"></i> WQI Report — WHO Standards (Top 10 Wells)</h3>
-            <button class="action-btn" onclick="runWQIAll()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        <div class="card-header" style="padding:1.2rem 1.5rem; border-bottom:none;">
+            <div style="display:flex; align-items:center; gap:0.8rem;">
+                <i class="fa-solid fa-file-invoice" style="color:#00d4ff; font-size:1.1rem;"></i>
+                <h3 style="margin:0; font-size:1.05rem; font-family:'Outfit',sans-serif; font-weight:700;">WQI Report — WHO Standards</h3>
+            </div>
         </div>
-        <div style="overflow-x:auto;padding:1rem;">
-            <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
-                <thead><tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
-                    <th style="padding:8px 12px;text-align:left;color:#64748b;">ID</th>
-                    <th style="padding:8px 12px;text-align:left;color:#64748b;">Well Name</th>
-                    <th style="padding:8px 12px;text-align:left;color:#64748b;">WQI Score</th>
-                    <th style="padding:8px 12px;text-align:left;color:#64748b;">Classification</th>
-                    <th style="padding:8px 12px;text-align:left;color:#64748b;">Action</th>
-                </tr></thead>
-                <tbody>${rows}</tbody>
+        
+        <!-- Sub-header with Pills and Buttons -->
+        <div style="padding:0 1.5rem 1rem 1.5rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.05);">
+            <div style="display:flex; align-items:center; gap:0.6rem;">
+                <span style="font-size:0.8rem; color:#64748b; font-weight:600;">Wells:</span>
+                <div style="display:flex; align-items:center;">
+                    ${pillsHTML}
+                </div>
+            </div>
+            <div style="display:flex; gap:0.6rem;">
+                <button onclick="openWQIMethodology()" style="background:rgba(0,212,255,0.08); border:1px solid rgba(0,212,255,0.4); color:#00d4ff; padding:6px 14px; border-radius:20px; cursor:pointer; font-size:0.75rem; font-weight:600; display:flex; align-items:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.background='rgba(0,212,255,0.15)'" onmouseout="this.style.background='rgba(0,212,255,0.08)'">
+                    <i class="fa-solid fa-circle-info"></i> Methodology
+                </button>
+                <button onclick="runWQIAll()" style="background:transparent; border:1px solid rgba(0,255,157,0.4); color:#00ff9d; padding:6px 14px; border-radius:20px; cursor:pointer; font-size:0.75rem; font-weight:600; display:flex; align-items:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.background='rgba(0,255,157,0.1)'" onmouseout="this.style.background='transparent'">
+                    <i class="fa-solid fa-rotate"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container" style="padding:0;">
+            <table style="width:100%; border-collapse:collapse; text-align:left;">
+                <thead>
+                    <tr style="background:rgba(255,255,255,0.01); border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <th style="padding:1rem 1.5rem; font-size:0.7rem; color:#64748b; text-transform:uppercase; letter-spacing:1px;">Well</th>
+                        <th style="padding:1rem 1.5rem; font-size:0.7rem; color:#64748b; text-transform:uppercase; letter-spacing:1px;">WQI Score</th>
+                        <th style="padding:1rem 1.5rem; font-size:0.7rem; color:#64748b; text-transform:uppercase; letter-spacing:1px;">Status</th>
+                        <th style="padding:1rem 1.5rem; font-size:0.7rem; color:#64748b; text-transform:uppercase; letter-spacing:1px;">Trend (12M)</th>
+                        <th style="padding:1rem 1.5rem; font-size:0.7rem; color:#64748b; text-transform:uppercase; letter-spacing:1px;">AI Insight</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
             </table>
         </div>`;
 }
+
+/** Opens the Methodology Modal seen in Image 1 */
+window.openWQIMethodology = function() {
+    if (!document.getElementById('wqiMethodologyModal')) {
+        const modalHTML = `
+        <div id="wqiMethodologyModal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); align-items:center; justify-content:center;" onclick="if(event.target===this)closeWQIMethodology()">
+            <div style="background:#0d111a; border:1px solid rgba(0,212,255,0.3); border-radius:16px; width:650px; max-width:95vw; max-height:90vh; overflow-y:auto; box-shadow:0 25px 50px rgba(0,0,0,0.5); animation:modalFadeIn 0.3s ease;">
+                <div style="padding:1.5rem; border-bottom:1px solid rgba(255,255,255,0.07); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:#0d111a; z-index:10;">
+                    <div style="display:flex; align-items:center; gap:0.8rem;">
+                        <i class="fa-solid fa-book-open" style="color:#00d4ff;"></i>
+                        <h2 style="margin:0; font-size:1.1rem; font-family:'Orbitron',sans-serif; color:#fff;">WQI Methodology & AI Logic</h2>
+                    </div>
+                    <button onclick="closeWQIMethodology()" style="background:rgba(255,255,255,0.05); border:none; color:#94a3b8; width:32px; height:32px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;" onmouseover="this.style.background='rgba(255,71,87,0.2)';this.style.color='#ff4757';" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='#94a3b8';">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div style="padding:2rem; color:#cbd5e1; font-size:0.9rem; line-height:1.6;">
+                    <h4 style="color:#00d4ff; margin-bottom:0.8rem; display:flex; align-items:center; gap:8px;">1. Mathematical Formula</h4>
+                    <p style="margin-bottom:1.5rem;">The Water Quality Index (WQI) is computed using the weighted arithmetic index method:</p>
+                    <div style="background:rgba(0,0,0,0.3); padding:1rem; border-radius:8px; text-align:center; margin-bottom:1rem; border:1px solid rgba(255,255,255,0.05);">
+                        <code style="font-family:'Orbitron',sans-serif; font-size:1.1rem; color:#fff;">WQI = Σ (wi * qi) / Σ wi</code>
+                    </div>
+                    <ul style="list-style:none; padding:0; margin-bottom:2rem; font-size:0.85rem; color:#94a3b8;">
+                        <li style="margin-bottom:0.4rem;"><strong style="color:#00d4ff;">wi:</strong> Unit weight of the i-th parameter.</li>
+                        <li><strong style="color:#00d4ff;">qi:</strong> Quality rating of the i-th parameter.</li>
+                    </ul>
+
+                    <h4 style="color:#00d4ff; margin-bottom:1rem; display:flex; align-items:center; gap:8px;">2. Parameter Weights (WHO Standards)</h4>
+                    <table style="width:100%; border-collapse:collapse; font-size:0.8rem; margin-bottom:2rem; border:1px solid rgba(255,255,255,0.05);">
+                        <thead>
+                            <tr style="background:rgba(255,255,255,0.03); border-bottom:1px solid rgba(255,255,255,0.1);">
+                                <th style="padding:0.8rem; text-align:left; color:#64748b; text-transform:uppercase;">Parameter</th>
+                                <th style="padding:0.8rem; text-align:left; color:#64748b; text-transform:uppercase;">WHO Limit</th>
+                                <th style="padding:0.8rem; text-align:left; color:#64748b; text-transform:uppercase;">Weight (WI)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(WHO_STANDARDS).map(([k,v]) => `
+                                <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+                                    <td style="padding:0.8rem; font-weight:700; color:#fff;">${k}</td>
+                                    <td style="padding:0.8rem; color:#94a3b8;">${v.limit} ${v.unit}</td>
+                                    <td style="padding:0.8rem; color:#00d4ff; font-weight:700;">${v.weight}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <h4 style="color:#00d4ff; margin-bottom:1rem; display:flex; align-items:center; gap:8px;">3. Classification Scales</h4>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:0.5rem;">
+                        <div style="background:rgba(0,255,157,0.1); border:1px solid rgba(0,255,157,0.3); padding:0.8rem; border-radius:8px; text-align:center;">
+                            <div style="color:#00ff9d; font-weight:800;">0 - 25</div>
+                            <div style="font-size:0.7rem; text-transform:uppercase; color:#00ff9d;">Excellent</div>
+                        </div>
+                        <div style="background:rgba(0,212,255,0.1); border:1px solid rgba(0,212,255,0.3); padding:0.8rem; border-radius:8px; text-align:center;">
+                            <div style="color:#00d4ff; font-weight:800;">26 - 50</div>
+                            <div style="font-size:0.7rem; text-transform:uppercase; color:#00d4ff;">Good</div>
+                        </div>
+                        <div style="background:rgba(255,191,0,0.1); border:1px solid rgba(255,191,0,0.3); padding:0.8rem; border-radius:8px; text-align:center;">
+                            <div style="color:#ffbf00; font-weight:800;">51 - 75</div>
+                            <div style="font-size:0.7rem; text-transform:uppercase; color:#ffbf00;">Poor</div>
+                        </div>
+                        <div style="background:rgba(255,71,87,0.1); border:1px solid rgba(255,71,87,0.3); padding:0.8rem; border-radius:8px; text-align:center;">
+                            <div style="color:#ff4757; font-weight:800;">> 100</div>
+                            <div style="font-size:0.7rem; text-transform:uppercase; color:#ff4757;">Unsuitable</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+            @keyframes modalFadeIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+        </style>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+    document.getElementById('wqiMethodologyModal').style.display = 'flex';
+};
+
+window.closeWQIMethodology = function() {
+    const modal = document.getElementById('wqiMethodologyModal');
+    if (modal) modal.style.display = 'none';
+};
 
 function updateMapMarkerWQI(wellId, wqi, cls) {
     if (!window.mainMap || !window.mainMap.markers) return;

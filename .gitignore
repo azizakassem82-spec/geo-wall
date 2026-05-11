@@ -51,3 +51,6 @@ Edit)
 
 # Large data files (exceeds GitHub 100MB limit)
 data/qgis_live_data.js
+
+# Build output
+dist/
