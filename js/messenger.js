@@ -66,14 +66,17 @@ window.openMessenger = function(engineerName) {
 
     document.getElementById('msgName').textContent = engineerName;
     document.getElementById('msgRole').textContent = eng.role;
+    
+    // Update border color dynamically to match the engineer
+    const panel = document.getElementById('messengerPanel');
+    panel.style.borderColor = eng.color;
+    panel.style.boxShadow = `0 25px 50px rgba(0,0,0,0.6), 0 0 15px ${eng.color}33`;
 
     // Show panel
-    const panel = document.getElementById('messengerPanel');
-    const overlay = document.getElementById('messengerOverlay');
     panel.style.display = 'flex';
-    overlay.style.display = 'block';
     requestAnimationFrame(() => {
-        panel.style.transform = 'translateX(0)';
+        panel.style.opacity = '1';
+        panel.style.transform = 'translateY(0)';
     });
 
     // Render messages
@@ -89,11 +92,10 @@ window.openMessenger = function(engineerName) {
 // ─── Close Messenger ────────────────────────────────────────────────────────
 window.closeMessenger = function() {
     const panel = document.getElementById('messengerPanel');
-    const overlay = document.getElementById('messengerOverlay');
-    panel.style.transform = 'translateX(100%)';
+    panel.style.opacity = '0';
+    panel.style.transform = 'translateY(20px)';
     setTimeout(() => {
         panel.style.display = 'none';
-        overlay.style.display = 'none';
     }, 350);
 };
 

@@ -1391,8 +1391,8 @@
                                     <span class="verified-badge">VERIFIED</span>
                                 </div>
                                 <div class="e-footer">
-                                    <button class="consult-btn green">CONSULT</button>
-                                    <button class="msg-btn"><i class="fa-solid fa-message"></i></button>
+                                    <button class="consult-btn green" onclick="openMessenger('GIS Engineer')">CONSULT</button>
+                                    <button class="msg-btn" onclick="openMessenger('GIS Engineer')"><i class="fa-solid fa-message"></i></button>
                                 </div>
                             </div>
 
@@ -1413,8 +1413,8 @@
                                     <span class="verified-badge">VERIFIED</span>
                                 </div>
                                 <div class="e-footer">
-                                    <button class="consult-btn blue">CONSULT</button>
-                                    <button class="msg-btn"><i class="fa-solid fa-message"></i></button>
+                                    <button class="consult-btn blue" onclick="openMessenger('DRE Engineer')">CONSULT</button>
+                                    <button class="msg-btn" onclick="openMessenger('DRE Engineer')"><i class="fa-solid fa-message"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -2326,6 +2326,7 @@
     <script src="js/piper.js"></script>
     <script src="js/qgisBridge.js"></script>
     <script src="js/ai_insights.js"></script>
+    <script src="js/messenger.js"></script>
     <script src="js/app.js"></script>
     <script src="js/main.js"></script>
     <!-- ============================================================ -->
@@ -2404,17 +2405,16 @@
     </style>
 
     <!-- ============================================================ -->
-    <!-- ENGINEER MESSENGER PANEL -->
+    <!-- ENGINEER MESSENGER WIDGET -->
     <!-- ============================================================ -->
-    <div id="messengerOverlay" onclick="if(event.target===this) closeMessenger()" style="display:none;position:fixed;inset:0;z-index:50000;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);"></div>
-
     <div id="messengerPanel" style="
-        display:none; position:fixed; top:0; right:0; height:100vh; width:380px; max-width:95vw;
-        background:linear-gradient(160deg,#0d1526 0%,#0a1020 100%);
-        border-left:1px solid rgba(0,212,255,0.2);
-        box-shadow:-20px 0 60px rgba(0,0,0,0.6);
-        z-index:50001; flex-direction:column;
-        transform:translateX(100%); transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);
+        display:none; position:fixed; bottom:24px; right:24px; height:500px; width:360px; max-width:90vw; max-height:85vh;
+        background:linear-gradient(160deg,#0a1020 0%,#0d1526 100%);
+        border:1px solid rgba(0,212,255,0.2);
+        border-radius:16px;
+        box-shadow:0 25px 50px rgba(0,0,0,0.6), 0 0 20px rgba(0,212,255,0.05);
+        z-index:50001; flex-direction:column; overflow:hidden;
+        opacity:0; transform:translateY(20px); transition:opacity 0.3s ease, transform 0.3s ease;
     ">
         <!-- Header -->
         <div id="messengerHeader" style="
