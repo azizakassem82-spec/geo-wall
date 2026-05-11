@@ -251,11 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Chart Placeholder
-    const chartEl = document.getElementById('productionChart');
-    if(chartEl) {
-        chartEl.parentElement.innerHTML = '<div style="display:flex; align-items:center; justify-content:center; height:100%; width:100%; background:rgba(0,0,0,0.2); border-radius:8px; color:var(--text-muted); flex-direction:column; gap:10px;"><i class="fa-solid fa-chart-line" style="font-size:3rem; color:var(--accent-primary); opacity:0.5;"></i><span>Production Chart Loading...</span></div>';
-    }
+    // Chart Placeholder removed so Chart.js can render successfully
 
     // --- FORM SUBMISSION (localStorage) ---
     const loadLogs = () => {
