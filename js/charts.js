@@ -78,12 +78,12 @@ class wellCharts {
 
         // Add last
         const now = new Date();
-        const timeLabel = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+        const timeLabel = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
 
         this.productionChart.data.labels.push(timeLabel);
         this.productionChart.data.datasets[0].data.push(newDataPoint);
 
-        this.productionChart.update('none'); // 'none' for performance
+        this.productionChart.update(); // Smooth animation
     }
 }
 
@@ -92,6 +92,18 @@ let mainCharts;
 document.addEventListener('DOMContentLoaded', () => {
     // Small delay to ensure container is ready
     setTimeout(() => {
-        mainCharts = new wellCharts();
+        if(document.getElementById('productionChart')) {
+            mainCharts = new wellCharts();
+            
+            // Premium Live Data Simulation
+            setInterval(() => {
+                const lastVal = mainCharts.productionChart.data.datasets[0].data[mainCharts.productionChart.data.datasets[0].data.length - 1];
+                const fluctuation = Math.floor(Math.random() * 800) - 400; // -400 to +400 bbl variation
+                let newVal = lastVal + fluctuation;
+                if(newVal < 35000) newVal = 35000;
+                if(newVal > 55000) newVal = 55000;
+                mainCharts.updateChart(newVal);
+            }, 3000);
+        }
     }, 100);
 });
