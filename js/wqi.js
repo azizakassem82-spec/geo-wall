@@ -314,82 +314,9 @@ function renderWQISummaryPanel(results) {
         </div>`;
 }
 
-/** Opens the Methodology Modal seen in Image 1 */
 window.openWQIMethodology = function() {
-    if (!document.getElementById('wqiMethodologyModal')) {
-        const modalHTML = `
-        <div id="wqiMethodologyModal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); align-items:center; justify-content:center;" onclick="if(event.target===this)closeWQIMethodology()">
-            <div style="background:#0d111a; border:1px solid rgba(0,212,255,0.3); border-radius:16px; width:650px; max-width:95vw; max-height:90vh; overflow-y:auto; box-shadow:0 25px 50px rgba(0,0,0,0.5); animation:modalFadeIn 0.3s ease;">
-                <div style="padding:1.5rem; border-bottom:1px solid rgba(255,255,255,0.07); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:#0d111a; z-index:10;">
-                    <div style="display:flex; align-items:center; gap:0.8rem;">
-                        <i class="fa-solid fa-book-open" style="color:#00d4ff;"></i>
-                        <h2 style="margin:0; font-size:1.1rem; font-family:'Orbitron',sans-serif; color:#fff;">WQI Methodology & AI Logic</h2>
-                    </div>
-                    <button onclick="closeWQIMethodology()" style="background:rgba(255,255,255,0.05); border:none; color:#94a3b8; width:32px; height:32px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;" onmouseover="this.style.background='rgba(255,71,87,0.2)';this.style.color='#ff4757';" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='#94a3b8';">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-                
-                <div style="padding:2rem; color:#cbd5e1; font-size:0.9rem; line-height:1.6;">
-                    <h4 style="color:#00d4ff; margin-bottom:0.8rem; display:flex; align-items:center; gap:8px;">1. Mathematical Formula</h4>
-                    <p style="margin-bottom:1.5rem;">The Water Quality Index (WQI) is computed using the weighted arithmetic index method:</p>
-                    <div style="background:rgba(0,0,0,0.3); padding:1rem; border-radius:8px; text-align:center; margin-bottom:1rem; border:1px solid rgba(255,255,255,0.05);">
-                        <code style="font-family:'Orbitron',sans-serif; font-size:1.1rem; color:#fff;">WQI = Σ (wi * qi) / Σ wi</code>
-                    </div>
-                    <ul style="list-style:none; padding:0; margin-bottom:2rem; font-size:0.85rem; color:#94a3b8;">
-                        <li style="margin-bottom:0.4rem;"><strong style="color:#00d4ff;">wi:</strong> Unit weight of the i-th parameter.</li>
-                        <li><strong style="color:#00d4ff;">qi:</strong> Quality rating of the i-th parameter.</li>
-                    </ul>
-
-                    <h4 style="color:#00d4ff; margin-bottom:1rem; display:flex; align-items:center; gap:8px;">2. Parameter Weights (WHO Standards)</h4>
-                    <table style="width:100%; border-collapse:collapse; font-size:0.8rem; margin-bottom:2rem; border:1px solid rgba(255,255,255,0.05);">
-                        <thead>
-                            <tr style="background:rgba(255,255,255,0.03); border-bottom:1px solid rgba(255,255,255,0.1);">
-                                <th style="padding:0.8rem; text-align:left; color:#64748b; text-transform:uppercase;">Parameter</th>
-                                <th style="padding:0.8rem; text-align:left; color:#64748b; text-transform:uppercase;">WHO Limit</th>
-                                <th style="padding:0.8rem; text-align:left; color:#64748b; text-transform:uppercase;">Weight (WI)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${Object.entries(WHO_STANDARDS).map(([k,v]) => `
-                                <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
-                                    <td style="padding:0.8rem; font-weight:700; color:#fff;">${k}</td>
-                                    <td style="padding:0.8rem; color:#94a3b8;">${v.limit} ${v.unit}</td>
-                                    <td style="padding:0.8rem; color:#00d4ff; font-weight:700;">${v.weight}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-
-                    <h4 style="color:#00d4ff; margin-bottom:1rem; display:flex; align-items:center; gap:8px;">3. Classification Scales</h4>
-                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:0.5rem;">
-                        <div style="background:rgba(0,255,157,0.1); border:1px solid rgba(0,255,157,0.3); padding:0.8rem; border-radius:8px; text-align:center;">
-                            <div style="color:#00ff9d; font-weight:800;">0 - 25</div>
-                            <div style="font-size:0.7rem; text-transform:uppercase; color:#00ff9d;">Excellent</div>
-                        </div>
-                        <div style="background:rgba(0,212,255,0.1); border:1px solid rgba(0,212,255,0.3); padding:0.8rem; border-radius:8px; text-align:center;">
-                            <div style="color:#00d4ff; font-weight:800;">26 - 50</div>
-                            <div style="font-size:0.7rem; text-transform:uppercase; color:#00d4ff;">Good</div>
-                        </div>
-                        <div style="background:rgba(255,191,0,0.1); border:1px solid rgba(255,191,0,0.3); padding:0.8rem; border-radius:8px; text-align:center;">
-                            <div style="color:#ffbf00; font-weight:800;">51 - 75</div>
-                            <div style="font-size:0.7rem; text-transform:uppercase; color:#ffbf00;">Poor</div>
-                        </div>
-                        <div style="background:rgba(255,71,87,0.1); border:1px solid rgba(255,71,87,0.3); padding:0.8rem; border-radius:8px; text-align:center;">
-                            <div style="color:#ff4757; font-weight:800;">> 100</div>
-                            <div style="font-size:0.7rem; text-transform:uppercase; color:#ff4757;">Unsuitable</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <style>
-            @keyframes modalFadeIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
-        </style>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-    }
-    document.getElementById('wqiMethodologyModal').style.display = 'flex';
+    const modal = document.getElementById('wqiMethodologyModal');
+    if (modal) modal.style.display = 'flex';
 };
 
 window.closeWQIMethodology = function() {
