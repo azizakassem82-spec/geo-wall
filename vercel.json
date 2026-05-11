@@ -1,8 +1,6 @@
 {
-  "buildCommand": null,
-  "outputDirectory": ".",
-  "installCommand": "echo 'No install needed'",
-  "framework": null,
+  "outputDirectory": "dist",
+  "framework": "vite",
   "headers": [
     {
       "source": "/(.*)",
