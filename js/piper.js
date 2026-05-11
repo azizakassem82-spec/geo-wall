@@ -99,7 +99,6 @@ const PiperPlot = {
 
         // Professional Points
         let plotElements = '';
-        let legendElements = '';
         
         points.forEach((pt, idx) => {
             const cp = getCatXY(pt.ca, pt.mg, pt.nak);
@@ -115,11 +114,6 @@ const PiperPlot = {
             plotElements += `<circle cx="${cp.x}" cy="${cp.y}" r="${size-1}" fill="${pt.color}" stroke="${stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />`;
             plotElements += `<circle cx="${ap.x}" cy="${ap.y}" r="${size-1}" fill="${pt.color}" stroke="${stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />`;
             plotElements += `<circle cx="${dp.x}" cy="${dp.y}" r="${size}" fill="${pt.color}" stroke="${stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />`;
-
-            // Add to legend
-            if (idx < 20) {
-               legendElements += `<text x="20" y="${60 + idx*14}" style="font-size: 10px; fill: ${pt.color}; font-weight: bold;">${pt.id}</text>`;
-            }
         });
 
         const svg = `
@@ -134,9 +128,7 @@ const PiperPlot = {
                 <!-- Titles -->
                 <text x="350" y="40" text-anchor="middle" class="main-title">Piper plot</text>
                 
-                <!-- Legend Column -->
-                <rect x="15" y="45" width="40" height="300" fill="rgba(0,0,0,0.02)" rx="5" />
-                ${legendElements}
+
 
                 <!-- Base Outlines -->
                 <path d="M${catO.x},${catO.y} L${catO.x+S},${catO.y} L${catO.x+S/2},${catO.y-h} Z" fill="#fff" stroke="#000" stroke-width="1.5" />
@@ -169,11 +161,21 @@ const PiperPlot = {
 
                 <!-- FACIES ANNOTATIONS (As in provided image) -->
                 <text x="${diaO.x+S/2}" y="${diaO.y-25}" class="facies-label" style="fill: #222; font-weight:600;">Bi-carbonatée sodique et potassique</text>
-                <text x="${diaO.x+40}" y="${diaO.y-h/2+10}" class="facies-label" style="text-anchor:start;">Bi-carbonatée<br/>calcique et<br/>magnésienne</text>
-                <text x="${diaO.x+S-10}" y="${diaO.y-h/2+10}" class="facies-label" style="text-anchor:end;">Chlorurée sodique<br/>et potassique ou<br/>sulfatée sodique</text>
+                <text x="${diaO.x+40}" y="${diaO.y-h/2}" class="facies-label" style="text-anchor:start;">
+                    <tspan x="${diaO.x+40}" dy="0">Bi-carbonatée</tspan>
+                    <tspan x="${diaO.x+40}" dy="13">calcique et</tspan>
+                    <tspan x="${diaO.x+40}" dy="13">magnésienne</tspan>
+                </text>
+                <text x="${diaO.x+S-10}" y="${diaO.y-h/2}" class="facies-label" style="text-anchor:end;">
+                    <tspan x="${diaO.x+S-10}" dy="0">Chlorurée sodique</tspan>
+                    <tspan x="${diaO.x+S-10}" dy="13">et potassique ou</tspan>
+                    <tspan x="${diaO.x+S-10}" dy="13">sulfatée sodique</tspan>
+                </text>
                 <text x="${diaO.x+S/2}" y="${diaO.y-h+30}" class="facies-label" style="fill: #222; font-weight:600;">Chlorurée et sulfatée calcique et magnésienne</text>
-                
-                <text x="${diaO.x+S/2}" y="${diaO.y-h-15}" class="facies-label" style="font-size: 8px;">Hyper chlorurée calcique<br/>Hyper sulfatée calcique</text>
+                <text x="${diaO.x+S/2}" y="${diaO.y-h-20}" class="facies-label" style="font-size: 8px;">
+                    <tspan x="${diaO.x+S/2}" dy="0">Hyper chlorurée calcique</tspan>
+                    <tspan x="${diaO.x+S/2}" dy="11">Hyper sulfatée calcique</tspan>
+                </text>
 
                 <!-- PLOTTED POINTS -->
                 ${plotElements}

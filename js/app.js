@@ -1,3 +1,43 @@
+// ============================================================
+// GLOBAL TOAST / LOG FUNCTION
+// ============================================================
+window.addAiLog = function(message, type = 'info') {
+    const colors = {
+        info:    { bg: 'rgba(0,212,255,0.15)',    border: 'rgba(0,212,255,0.5)',    icon: 'fa-circle-info',       text: '#00d4ff' },
+        success: { bg: 'rgba(46,213,115,0.15)',   border: 'rgba(46,213,115,0.5)',   icon: 'fa-circle-check',      text: '#2ed573' },
+        warning: { bg: 'rgba(255,191,0,0.15)',    border: 'rgba(255,191,0,0.5)',    icon: 'fa-triangle-exclamation', text: '#ffbf00' },
+        error:   { bg: 'rgba(255,71,87,0.15)',    border: 'rgba(255,71,87,0.5)',    icon: 'fa-circle-xmark',      text: '#ff4757' }
+    };
+    const c = colors[type] || colors.info;
+
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed; bottom: 24px; right: 24px; z-index: 99999;
+        background: ${c.bg}; border: 1px solid ${c.border};
+        backdrop-filter: blur(12px); color: ${c.text};
+        padding: 12px 18px; border-radius: 10px;
+        font-size: 0.82rem; font-family: 'Outfit', sans-serif;
+        display: flex; align-items: center; gap: 10px;
+        max-width: 360px; box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        animation: slideInRight 0.35s ease-out forwards;
+        transition: opacity 0.4s;
+    `;
+    toast.innerHTML = `<i class="fa-solid ${c.icon}" style="flex-shrink:0;"></i><span>${message}</span>`;
+
+    // Inject animation if not present
+    if (!document.getElementById('aiLogStyle')) {
+        const s = document.createElement('style');
+        s.id = 'aiLogStyle';
+        s.textContent = `
+            @keyframes slideInRight { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        `;
+        document.head.appendChild(s);
+    }
+
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 4000);
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // Inject Layout Fixes for Full Map
     const style = document.createElement('style');
@@ -1411,35 +1451,130 @@ window.switchView = switchView;
    ASSETS & COMMUNITY HUB INTERACTIVITY
    ========================================================================== */
 
-// Handle Asset Booking
+// Handle Asset Booking — opens Logistic Intelligence Check modal
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('book-btn')) {
         const card = e.target.closest('.asset-card');
-        const assetName = card.querySelector('h3').innerText;
-        
-        // Show futuristic notification
-        if (typeof addAiLog === 'function') {
-            addAiLog(`[ASSETS] Initiating booking request for ${assetName}...`, "info");
-            setTimeout(() => {
-                addAiLog(`[ASSETS] ${assetName} reserved successfully. Reservation ID: RSV-${Math.floor(Math.random()*10000)}`, "success");
-                
-                // Visual feedback on button
-                const originalText = e.target.innerText;
-                e.target.innerText = "RESERVED";
-                e.target.style.background = "var(--accent-success)";
-                e.target.disabled = true;
-                
-                setTimeout(() => {
-                    e.target.innerText = originalText;
-                    e.target.style.background = "var(--accent-primary)";
-                    e.target.disabled = false;
-                }, 5000);
-            }, 1500);
-        } else {
-            alert(`Booking request sent for: ${assetName}`);
-        }
+        openLogisticModal(card);
     }
 });
+
+// ─── Asset logistics data ───────────────────────────────────────────────────
+const assetLogistics = {
+    'GPS RTK Rover (Trimble R12)':   { origin: 'Warehouse A — Sector 01',  time: '2 Hours (Road)', cost: '1500 DZD/hr', status: 'In Stock' },
+    'Mala GPR System (250MHz)':      { origin: 'Batna Site — Sub-Chief',   time: '6 Hours (Road)', cost: '2800 DZD/hr', status: 'Deployed' },
+    'Geometrics G-858 Magnetometer': { origin: 'Algiers Central Lab',       time: '8 Hours (Road)', cost: '3200 DZD/hr', status: 'Maintenance' },
+    'Survey Drone SAR (M300)':       { origin: "M'Sila Basin Sector 04",   time: '4 Hours (Road)', cost: '4500 DZD/hr', status: 'Operational' },
+};
+
+function openLogisticModal(card) {
+    const name  = card.querySelector('h3')?.innerText?.trim() || 'Asset';
+    const logic = assetLogistics[name] || { origin: 'Sector 01', time: '4 Hours (Road)', cost: '1500 DZD/hr', status: 'Operational' };
+
+    if (!document.getElementById('logisticModal')) {
+        document.body.insertAdjacentHTML('beforeend', `
+        <div id="logisticModal" onclick="if(event.target===this)closeLogisticModal()" style="
+            display:none;position:fixed;inset:0;z-index:60000;
+            background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);
+            align-items:center;justify-content:center;">
+          <div style="
+            background:linear-gradient(160deg,#0d1526,#0a1020);
+            border:1px solid rgba(0,212,255,0.25);border-radius:16px;
+            width:460px;max-width:95vw;padding:1.8rem;position:relative;
+            box-shadow:0 30px 80px rgba(0,0,0,0.7);
+            animation:logModalIn 0.3s cubic-bezier(0.4,0,0.2,1);">
+            <!-- Header -->
+            <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1.4rem;">
+              <i class="fa-solid fa-truck-fast" style="color:#00d4ff;font-size:1.3rem;"></i>
+              <h2 style="font-family:'Orbitron',sans-serif;font-size:1.05rem;color:#fff;margin:0;flex:1;">Logistic Intelligence Check</h2>
+              <button onclick="closeLogisticModal()" style="background:none;border:none;color:#64748b;font-size:1.1rem;cursor:pointer;padding:4px 8px;border-radius:6px;" onmouseover="this.style.color='#ff4757'" onmouseout="this.style.color='#64748b'">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <!-- Banner -->
+            <div style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.3);border-radius:10px;padding:0.9rem 1rem;margin-bottom:1.2rem;display:flex;gap:0.8rem;align-items:flex-start;">
+              <i class="fa-solid fa-truck-arrow-right" style="color:#00d4ff;margin-top:2px;flex-shrink:0;"></i>
+              <p id="logBannerText" style="font-size:0.82rem;color:#94a3b8;margin:0;line-height:1.55;"></p>
+            </div>
+            <p style="font-size:0.75rem;color:#475569;margin-bottom:1.2rem;">
+              <i class="fa-solid fa-circle-notch fa-spin" style="color:#00d4ff;margin-right:6px;"></i>
+              Reviewing logistics and transfer requirements...
+            </p>
+            <!-- Info Grid -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1.4rem;">
+              <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:0.9rem;">
+                <div style="font-size:0.6rem;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.35rem;">Origin Warehouse</div>
+                <div id="logOrigin" style="font-size:0.9rem;color:#00d4ff;font-weight:700;"></div>
+              </div>
+              <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:0.9rem;">
+                <div style="font-size:0.6rem;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.35rem;">Transfer Time</div>
+                <div id="logTime" style="font-size:0.9rem;color:#00d4ff;font-weight:700;"></div>
+              </div>
+              <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:0.9rem;">
+                <div style="font-size:0.6rem;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.35rem;">Operational Cost</div>
+                <div id="logCost" style="font-size:0.9rem;color:#00d4ff;font-weight:700;"></div>
+              </div>
+              <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:0.9rem;">
+                <div style="font-size:0.6rem;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.35rem;">Current Status</div>
+                <div id="logStatus" style="font-size:0.9rem;color:#00d4ff;font-weight:700;"></div>
+              </div>
+            </div>
+            <!-- Priority Toggle -->
+            <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:0.9rem 1rem;margin-bottom:1.6rem;">
+              <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;">Request Priority Access?</span>
+              <label style="position:relative;display:inline-block;width:46px;height:25px;cursor:pointer;">
+                <input type="checkbox" id="priorityToggle" style="opacity:0;width:0;height:0;">
+                <span id="toggleTrack" style="position:absolute;inset:0;background:rgba(255,255,255,0.1);border-radius:25px;transition:background 0.3s;cursor:pointer;" onclick="
+                  var cb=document.getElementById('priorityToggle');
+                  cb.checked=!cb.checked;
+                  this.style.background=cb.checked?'linear-gradient(135deg,#00d4ff,#0077b6)':'rgba(255,255,255,0.1)';
+                  document.getElementById('toggleKnob').style.transform=cb.checked?'translateX(21px)':'translateX(0)';
+                ">
+                  <span id="toggleKnob" style="position:absolute;top:3px;left:3px;width:19px;height:19px;background:#fff;border-radius:50%;transition:transform 0.3s;pointer-events:none;"></span>
+                </span>
+              </label>
+            </div>
+            <!-- Buttons -->
+            <div style="display:flex;gap:0.8rem;justify-content:flex-end;">
+              <button onclick="closeLogisticModal()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:#94a3b8;padding:10px 24px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:0.88rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.35)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'">Cancel</button>
+              <button onclick="confirmTransfer()" style="background:linear-gradient(135deg,#00d4ff,#0077b6);border:none;color:#000;padding:10px 28px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(0,212,255,0.35);transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
+                <i class="fa-solid fa-bolt"></i> Initialize Transfer
+              </button>
+            </div>
+          </div>
+        </div>`);
+
+        const s = document.createElement('style');
+        s.textContent = `@keyframes logModalIn { from{opacity:0;transform:scale(0.92) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }`;
+        document.head.appendChild(s);
+    }
+
+    // Populate data
+    document.getElementById('logBannerText').innerHTML =
+        `<strong style="color:#fff">${name}</strong> will be transferred from <strong style="color:#00d4ff">${logic.origin}</strong> to your current GIS coordinates. Estimated arrival: <strong style="color:#fff">${logic.time}</strong>.`;
+    document.getElementById('logOrigin').textContent = logic.origin;
+    document.getElementById('logTime').textContent   = logic.time;
+    document.getElementById('logCost').textContent   = logic.cost;
+    document.getElementById('logStatus').textContent = logic.status;
+    document.getElementById('priorityToggle').checked = false;
+    document.getElementById('toggleTrack').style.background = 'rgba(255,255,255,0.1)';
+    document.getElementById('toggleKnob').style.transform   = 'translateX(0)';
+    document.getElementById('logisticModal')._assetName = name;
+    document.getElementById('logisticModal').style.display = 'flex';
+}
+
+window.closeLogisticModal = function() {
+    const m = document.getElementById('logisticModal');
+    if (m) m.style.display = 'none';
+};
+
+window.confirmTransfer = function() {
+    const modal    = document.getElementById('logisticModal');
+    const name     = modal._assetName || 'Asset';
+    const priority = document.getElementById('priorityToggle').checked;
+    closeLogisticModal();
+    addAiLog(`[LOGISTICS] Transfer initialized for <strong>${name}</strong>${priority ? ' · PRIORITY ACCESS granted' : ''}. Tracking ID: TRK-${Math.floor(Math.random()*90000+10000)}`, 'success');
+};
 
 // Handle Expert Consultation
 document.addEventListener('click', (e) => {

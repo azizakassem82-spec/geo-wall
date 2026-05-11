@@ -346,11 +346,6 @@ function viewWellDetails(id) {
         if (el) el.innerText = value;
     }
 
-    // Handle multiple image placeholders
-    const images = document.querySelectorAll('#detailWellImage, #detailWellImageLarge');
-    images.forEach(img => {
-        img.src = well.image || "https://dummyimage.com/600x400/1a1a1a/00d4ff&text=Well+Site";
-    });
 
     const statusBadge = document.getElementById('detailWellStatus');
     if (statusBadge) {

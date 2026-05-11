@@ -550,7 +550,7 @@ body {
 .view-section {
   display: none;
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .view-section.active {
@@ -1533,7 +1533,6 @@ input:checked + .slider:before {
     gap: 1rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    overflow: hidden;
 }
 
 .asset-card:hover {
